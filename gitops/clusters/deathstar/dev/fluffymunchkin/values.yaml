@@ -1,5 +1,5 @@
 cloudprovider: harvester
-cloudCredentialSecretName: cattle-global-data:cc-mp9x7
+cloudCredentialSecretName: cattle-global-data:cc-rvdh4
 cluster:
   annotations: {}
   labels:
