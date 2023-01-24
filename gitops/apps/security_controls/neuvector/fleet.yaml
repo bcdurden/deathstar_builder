@@ -2,7 +2,7 @@ defaultNamespace: cattle-neuvector-system
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: neuvector
-  version: 100.0.1+up2.2.2
+  version: 101.0.1+up2.2.4
   releaseName: neuvector
   valuesFiles:
     - values.yaml
