@@ -4,7 +4,7 @@ metadata:
   name: dev-cluster-loader
   namespace: fleet-local
 spec:
-  repo: https://github.com/rancherfederal/kubecon-fleet-stack.git
+  repo: https://github.com/bcdurden/deathstar_builder.git
   branch: main  
   targets:
   - clusterName: local
