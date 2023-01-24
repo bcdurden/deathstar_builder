@@ -1,0 +1,52 @@
+cloudprovider: harvester
+cloudCredentialSecretName: cattle-global-data:cc-mp9x7
+cluster:
+  annotations: {}
+  labels:
+    environment: prod
+    cluster_name: blue
+    location: deathstar
+  name: prod-blue
+kubernetesVersion: v1.24.7+rke2r1
+monitoring:
+  enabled: false
+rke:
+  localClusterAuthEndpoint:
+    enabled: false
+nodepools:
+- etcd: true
+  controlplane: true
+  worker: false
+  displayName: control-plane-nodes
+  name: control-plane-pb-pool
+  labels: {}
+  taints: {}
+  quantity: 1
+  paused: false
+  diskSize: 20
+  diskBus: virtio
+  cpuCount: 2
+  memorySize: 4
+  networkName: default/prod
+  networkType: dhcp
+  imageName: default/ubuntu-2004
+  vmNamespace: default
+  sshUser: ubuntu
+- etcd: false
+  controlplane: false
+  worker: true
+  displayName: worker-nodes
+  name: worker-pb-pool
+  labels: {}
+  taints: {}
+  quantity: 3
+  paused: false
+  diskSize: 200
+  diskBus: virtio
+  cpuCount: 4
+  memorySize: 16
+  networkName: default/prod
+  networkType: dhcp
+  imageName: default/ubuntu-2004
+  vmNamespace: default
+  sshUser: ubuntu

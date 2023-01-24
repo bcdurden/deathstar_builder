@@ -1,0 +1,17 @@
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: registry
+  namespace: fleet-default
+spec:
+  repo: https://git.mustafar.lol/gitea/kubecon-fleetstack.git
+  branch: main
+  
+  targets:
+  - clusterSelector:
+      matchLabels:
+        environment: services
+        cluster_name: shared
+
+  paths:
+  - "./gitops/apps/registry/"

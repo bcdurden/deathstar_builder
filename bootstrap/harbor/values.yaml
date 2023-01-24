@@ -1,0 +1,46 @@
+externalURL: https://harbor.mustafar.lol
+
+harborAdminPassword: "Harbor12345"
+
+updateStrategy:
+  type: Recreate
+
+expose:
+  ingress:
+    hosts:
+      core: harbor.mustafar.lol
+      notary: notary.mustafar.lol
+  tls:
+    certSource: secret
+    secret:
+      secretName: harbor-prod-certificate
+      notarySecretName: harbor-prod-certificate
+
+persistence:
+  persistentVolumeClaim:
+    registry:
+      size: 65Gi
+      storageClass: "longhorn"
+    chartmuseum:
+      storageClass: "longhorn"
+    jobservice:
+      storageClass: "longhorn"
+    database:
+      storageClass: "longhorn"
+    redis:
+      storageClass: "longhorn"
+    trivy:
+      storageClass: "longhorn"
+
+# If using an external Postgres DB
+# database:
+#   type: external
+
+#   external:
+#     host: "postgres.example.com"
+#     port: "5432"
+#     username: "example-user"
+#     password: "example-password"
+#     coreDatabase: "registry"
+#     notaryServerDatabase: "notary_server"
+#     notarySignerDatabase: "notary_signer"

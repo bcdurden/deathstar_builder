@@ -1,0 +1,2 @@
+.terraform*
+**/*/rancher/kube_config_server.yaml

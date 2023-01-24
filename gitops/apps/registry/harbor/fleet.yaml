@@ -1,0 +1,10 @@
+defaultNamespace: harbor
+helm:
+  repo: https://harbor.mustafar.lol/chartrepo/goharbor
+  chart: harbor
+  version: 1.9.3
+  releaseName: harbor
+  valuesFiles:
+    - values.yaml
+dependsOn:
+- name: essentials-gitops-apps-essentials-longhorn

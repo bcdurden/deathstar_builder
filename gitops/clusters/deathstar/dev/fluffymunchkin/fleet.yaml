@@ -1,0 +1,8 @@
+defaultNamespace: default
+helm:
+  chart: cluster-template
+  version: 0.0.1
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
+  releaseName: cluster-template-dev-fluffymunchkin
+  valuesFiles:
+    - values.yaml

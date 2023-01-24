@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harvester-homelab
+  namespace: cattle-system
+spec:
+  secretName: harvester-homelab-certificate
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - #@ "harvester1." + data.values.base_url

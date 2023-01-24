@@ -1,0 +1,25 @@
+test_pod:
+  image: bats/bats:v1.1.0
+  pullPolicy: IfNotPresent
+
+loki:
+  enabled: true
+  isDefault: true
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 5Gi
+  image:
+    repository: harbor.mustafar.lol/grafana/loki
+    tag: 2.6.1
+    pullPolicy: IfNotPresent
+
+  ingress:
+    enabled: true
+    hosts:
+    - host: loki.svc.mustafar.lol
+      paths:
+      - /
+
+promtail:
+ enabled: false

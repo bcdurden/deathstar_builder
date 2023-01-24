@@ -1,0 +1,15 @@
+crdwebhook:
+  enabled: true
+  type: ClusterIP
+openshift: false
+serviceAccount: neuvector
+global:
+  cattle:
+    # clusterId: c-m-sh94nccc
+    clusterName: services-shared
+    rkePathPrefix: ''
+    rkeWindowsPathPrefix: ''
+    systemDefaultRegistry: harbor.mustafar.lol
+    # systemProjectId: p-6p6l4
+    url: https://rancher.mustafar.lol
+  systemDefaultRegistry: harbor.mustafar.lol

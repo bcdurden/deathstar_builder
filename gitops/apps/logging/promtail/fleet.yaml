@@ -1,0 +1,76 @@
+defaultNamespace: promtail
+helm:
+  repo: https://harbor.mustafar.lol/chartrepo/grafana
+  chart: loki-stack
+  version: 2.8.3
+  releaseName: promtail
+  valuesFiles:
+    - values.yaml
+
+targetCustomizations:
+- name: services
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: services-shared
+  clusterSelector:
+    matchLabels:
+      environment: services
+      cluster_name: shared
+- name: dev-fluffymunchkin
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: dev-fluffymunchkin
+  clusterSelector:
+    matchLabels:
+      environment: dev
+      cluster_name: fluffymunchkin
+- name: sandbox-alpha
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: sandbox-alpha
+  clusterSelector:
+    matchLabels:
+      environment: sandbox
+      cluster_name: alpha
+- name: prod-blue
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: prod-blue
+  clusterSelector:
+    matchLabels:
+      environment: prod
+      cluster_name: blue
+- name: prod-green
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: prod-green
+  clusterSelector:
+    matchLabels:
+      environment: prod
+      cluster_name: green
+

@@ -1,0 +1,8 @@
+defaultNamespace: cattle-neuvector-system
+helm:
+  repo: https://harbor.mustafar.lol/chartrepo/rancher
+  chart: neuvector
+  version: 100.0.1+up2.2.2
+  releaseName: neuvector
+  valuesFiles:
+    - values.yaml

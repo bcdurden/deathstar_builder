@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbor-prod-homelab
+  namespace: harbor
+spec:
+  secretName: harbor-prod-homelab-certificate
+  issuerRef:
+    name: letsencrypt-prod-clouddns
+    kind: ClusterIssuer
+  dnsNames:
+  - #@ "harbor." + data.values.base_url
+  - #@ "notary." + data.values.base_url

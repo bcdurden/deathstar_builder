@@ -1,0 +1,26 @@
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: log-forwarder
+  namespace: fleet-default
+spec:
+  repo: https://git.mustafar.lol/gitea/kubecon-fleetstack.git
+  branch: main
+
+  # To target specific clusters, uncomment this block
+  targets:
+  - clusterSelector:
+      matchLabels:
+        environment: services
+  - clusterSelector:
+      matchLabels:
+        environment: dev
+  - clusterSelector:
+      matchLabels:
+        environment: sandbox
+  - clusterSelector:
+      matchLabels:
+        environment: prod
+
+  paths:
+  - "./gitops/apps/logging/promtail"

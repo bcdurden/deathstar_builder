@@ -1,0 +1,12 @@
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: prod-cluster-loader
+  namespace: fleet-local
+spec:
+  repo: https://github.com/rancherfederal/kubecon-fleet-stack.git
+  branch: main  
+  targets:
+  - clusterName: local
+  paths:
+  - "./gitops/clusters/harvester1/prod"

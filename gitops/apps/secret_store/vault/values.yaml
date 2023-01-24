@@ -1,0 +1,29 @@
+server:
+  affinity: ""
+  ha:
+    enabled: true
+    replicas: 3
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.mustafar.lol/hashicorp/vault
+    tag: 1.11.3
+ui:
+  enabled: true
+  serviceType: ClusterIP
+  externalPort: 8200
+
+# csi:
+#   image:
+#     pullPolicy: IfNotPresent
+#     repository: hashicorp/vault-csi-provider
+#     tag: 1.2.0
+
+injector:
+  agentImage:
+    repository: harbor.mustafar.lol/hashicorp/vault
+    tag: 1.11.3
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.mustafar.lol/hashicorp/vault-k8s
+    tag: 1.0.0
+  

@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+  - host: git.mustafar.lol
+    paths: 
+    - path: "/"
+      pathType: "Prefix"
+  tls:
+  - secretName: gitea-prod-certificate
+    hosts:
+    - git.mustafar.lol
