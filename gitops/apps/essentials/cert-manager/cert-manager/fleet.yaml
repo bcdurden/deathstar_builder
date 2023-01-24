@@ -2,7 +2,7 @@ defaultNamespace: cert-manager
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/jetstack
   chart: cert-manager
-  version: 1.7.3
+  version: 1.8.1
   releaseName: cert-manager
   valuesFiles:
     - values.yaml
