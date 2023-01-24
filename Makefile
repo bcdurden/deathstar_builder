@@ -3,8 +3,8 @@ REQUIRED_BINARIES := kubectl cosign helm terraform kubectx kubecm ytt yq jq
 WORKING_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BOOTSTRAP_DIR := ${WORKING_DIR}/bootstrap
 TERRAFORM_DIR := ${WORKING_DIR}/terraform
-WORKLOAD_DIR := ${ROOT_DIR}/workloads
-GITOPS_DIR := ${ROOT_DIR}/gitops
+WORKLOAD_DIR := ${WORKING_DIR}/workloads
+GITOPS_DIR := ${WORKING_DIR}/gitops
 
 HARVESTER_CONTEXT="deathstar"
 BASE_URL=sienarfleet.systems

@@ -1,6 +1,6 @@
 global:
   datacenter: mustafar-vault
-  image: harbor.mustafar.lol/hashicorp/consul:1.11.1
+  image: harbor.sienarfleet.systems/hashicorp/consul:1.11.1
 
 client:
   enabled: true

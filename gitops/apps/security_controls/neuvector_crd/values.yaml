@@ -9,7 +9,7 @@ global:
     clusterName: services-shared
     rkePathPrefix: ''
     rkeWindowsPathPrefix: ''
-    systemDefaultRegistry: harbor.mustafar.lol
+    systemDefaultRegistry: harbor.sienarfleet.systems
     # systemProjectId: p-6p6l4
-    url: https://rancher.mustafar.lol
-  systemDefaultRegistry: harbor.mustafar.lol
+    url: https://rancher.sienarfleet.systems
+  systemDefaultRegistry: harbor.sienarfleet.systems

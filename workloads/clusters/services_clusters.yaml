@@ -4,9 +4,9 @@ metadata:
   name: service-cluster-loader
   namespace: fleet-local
 spec:
-  repo: https://github.com/rancherfederal/kubecon-fleet-stack.git
+  repo: https://github.com/bcdurden/deathstar_builder.git
   branch: main  
   targets:
   - clusterName: local
   paths:
-  - "./gitops/clusters/harvester1/services"
+  - "./gitops/clusters/deathstar/services"

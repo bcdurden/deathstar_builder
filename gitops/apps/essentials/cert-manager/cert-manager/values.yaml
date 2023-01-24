@@ -1,11 +1,11 @@
 image:
-  repository: harbor.mustafar.lol/jetstack/cert-manager-controller
+  repository: harbor.sienarfleet.systems/jetstack/cert-manager-controller
 webhook:
   image:
-    repository: harbor.mustafar.lol/jetstack/cert-manager-webhook
+    repository: harbor.sienarfleet.systems/jetstack/cert-manager-webhook
 cainjector:
   image:
-    repository: harbor.mustafar.lol/jetstack/cert-manager-cainjector
+    repository: harbor.sienarfleet.systems/jetstack/cert-manager-cainjector
 startupapicheck:
   image:
-    repository: harbor.mustafar.lol/jetstack/cert-manager-ctl
+    repository: harbor.sienarfleet.systems/jetstack/cert-manager-ctl

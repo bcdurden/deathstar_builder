@@ -4,7 +4,7 @@ metadata:
   name: security-controls
   namespace: fleet-default
 spec:
-  repo: https://git.mustafar.lol/gitea/kubecon-fleetstack.git
+  repo: https://github.com/bcdurden/deathstar_builder.git
   branch: main
 
   # To target specific clusters, uncomment this block

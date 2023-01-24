@@ -10,14 +10,14 @@ loki:
     storageClassName: longhorn
     size: 5Gi
   image:
-    repository: harbor.mustafar.lol/grafana/loki
+    repository: harbor.sienarfleet.systems/grafana/loki
     tag: 2.6.1
     pullPolicy: IfNotPresent
 
   ingress:
     enabled: true
     hosts:
-    - host: loki.svc.mustafar.lol
+    - host: loki.svc.sienarfleet.systems
       paths:
       - /
 

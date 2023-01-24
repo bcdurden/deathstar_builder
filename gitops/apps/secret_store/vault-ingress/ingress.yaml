@@ -6,7 +6,7 @@ metadata:
   namespace: vault
 spec:
   rules:
-  - host: vault.svc.mustafar.lol
+  - host: vault.svc.sienarfleet.systems
     http:
       paths:
       - backend:

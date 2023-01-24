@@ -64,38 +64,38 @@ global:
 image:
   csi:
     attacher:
-      repository: harbor.mustafar.lol/longhornio/csi-attacher
+      repository: harbor.sienarfleet.systems/longhornio/csi-attacher
       tag: v3.4.0
     nodeDriverRegistrar:
-      repository: harbor.mustafar.lol/longhornio/csi-node-driver-registrar
+      repository: harbor.sienarfleet.systems/longhornio/csi-node-driver-registrar
       tag: v2.5.0
     provisioner:
-      repository: harbor.mustafar.lol/longhornio/csi-provisioner
+      repository: harbor.sienarfleet.systems/longhornio/csi-provisioner
       tag: v2.1.2
     resizer:
-      repository: harbor.mustafar.lol/longhornio/csi-resizer
+      repository: harbor.sienarfleet.systems/longhornio/csi-resizer
       tag: v1.2.0
     snapshotter:
-      repository: harbor.mustafar.lol/longhornio/csi-snapshotter
+      repository: harbor.sienarfleet.systems/longhornio/csi-snapshotter
       tag: v3.0.3
   longhorn:
     backingImageManager:
-      repository: harbor.mustafar.lol/longhornio/backing-image-manager
+      repository: harbor.sienarfleet.systems/longhornio/backing-image-manager
       tag: v3_20220808
     engine:
-      repository: harbor.mustafar.lol/longhornio/longhorn-engine
+      repository: harbor.sienarfleet.systems/longhornio/longhorn-engine
       tag: v1.3.1
     instanceManager:
-      repository: harbor.mustafar.lol/longhornio/longhorn-instance-manager
+      repository: harbor.sienarfleet.systems/longhornio/longhorn-instance-manager
       tag: v1_20220808
     manager:
-      repository: harbor.mustafar.lol/longhornio/longhorn-manager
+      repository: harbor.sienarfleet.systems/longhornio/longhorn-manager
       tag: v1.3.1
     shareManager:
-      repository: harbor.mustafar.lol/longhornio/longhorn-share-manager
+      repository: harbor.sienarfleet.systems/longhornio/longhorn-share-manager
       tag: v1_20220808
     ui:
-      repository: harbor.mustafar.lol/longhornio/longhorn-ui
+      repository: harbor.sienarfleet.systems/longhornio/longhorn-ui
       tag: v1.3.1
   pullPolicy: IfNotPresent
 ingress:

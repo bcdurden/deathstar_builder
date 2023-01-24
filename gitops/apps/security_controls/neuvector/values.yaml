@@ -205,7 +205,7 @@ oem: null
 openshift: false
 psp: false
 rbac: true
-registry: harbor.mustafar.lol
+registry: harbor.sienarfleet.systems
 resources: {}
 serviceAccount: neuvector
 global:
@@ -214,7 +214,7 @@ global:
     clusterName: services-shared
     rkePathPrefix: ''
     rkeWindowsPathPrefix: ''
-    systemDefaultRegistry: harbor.mustafar.lol
+    systemDefaultRegistry: harbor.sienarfleet.systems
     systemProjectId: p-sr28m
-    url: https://rancher.mustafar.lol
-  systemDefaultRegistry: harbor.mustafar.lol
+    url: https://rancher.sienarfleet.systems
+  systemDefaultRegistry: harbor.sienarfleet.systems

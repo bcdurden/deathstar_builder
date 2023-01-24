@@ -11,7 +11,7 @@ promtail:
     
   image:
     # -- The Docker registry
-    registry: harbor.mustafar.lol
+    registry: harbor.sienarfleet.systems
     # -- Docker image repository
     repository: grafana/promtail
     # -- Overrides the image tag whose default is the chart's appVersion
@@ -31,7 +31,7 @@ promtail:
     # Must be reference in `config.file` to configure `clients`
     # @default -- See `values.yaml`
     clients:
-      - url: https://loki.svc.mustafar.lol/loki/api/v1/push
+      - url: https://loki.svc.sienarfleet.systems/loki/api/v1/push
         tls_config:
           insecure_skip_verify: true
     
