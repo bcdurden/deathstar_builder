@@ -1,6 +1,6 @@
 defaultNamespace: cert-manager
 helm:
-  repo: https://harbor.mustafar.lol/chartrepo/jetstack
+  repo: https://harbor.sienarfleet.systems/chartrepo/jetstack
   chart: cert-manager
   version: 1.7.3
   releaseName: cert-manager

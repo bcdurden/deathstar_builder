@@ -1,6 +1,6 @@
 defaultNamespace: vault
 helm:
-  repo: https://harbor.mustafar.lol/chartrepo/hashicorp
+  repo: https://harbor.sienarfleet.systems/chartrepo/hashicorp
   chart: consul
   version: 0.39.0
   releaseName: consul

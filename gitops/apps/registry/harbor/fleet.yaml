@@ -1,6 +1,6 @@
 defaultNamespace: harbor
 helm:
-  repo: https://harbor.mustafar.lol/chartrepo/goharbor
+  repo: https://harbor.sienarfleet.systems/chartrepo/goharbor
   chart: harbor
   version: 1.9.3
   releaseName: harbor

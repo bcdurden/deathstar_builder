@@ -1,7 +1,7 @@
 defaultNamespace: longhorn-system
 helm:
   releaseName: longhorn
-  repo: https://harbor.mustafar.lol/chartrepo/longhornio
+  repo: https://harbor.sienarfleet.systems/chartrepo/longhornio
   chart: longhorn
   version: 1.3.1
   valuesFiles:

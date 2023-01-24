@@ -1,6 +1,6 @@
 defaultNamespace: loki
 helm:
-  repo: https://harbor.mustafar.lol/chartrepo/grafana
+  repo: https://harbor.sienarfleet.systems/chartrepo/grafana
   chart: loki-stack
   version: 2.8.3
   releaseName: loki
