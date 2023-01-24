@@ -10,7 +10,7 @@ spec:
   targets:
   - clusterSelector:
       matchLabels:
-        location: el8000
+        location: deathstar
 
   paths:
   - "./gitops/apps/essentials"
