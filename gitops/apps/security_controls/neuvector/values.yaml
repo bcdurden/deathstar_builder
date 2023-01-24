@@ -208,13 +208,3 @@ rbac: true
 registry: harbor.sienarfleet.systems
 resources: {}
 serviceAccount: neuvector
-global:
-  cattle:
-    clusterId: c-m-dp495rtm
-    clusterName: services-shared
-    rkePathPrefix: ''
-    rkeWindowsPathPrefix: ''
-    systemDefaultRegistry: harbor.sienarfleet.systems
-    systemProjectId: p-sr28m
-    url: https://rancher.sienarfleet.systems
-  systemDefaultRegistry: harbor.sienarfleet.systems
