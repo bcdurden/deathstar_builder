@@ -166,15 +166,14 @@ workloads-check: check-tools
 workloads-yes: check-tools
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
-	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = "$(HARVESTER_CONTEXT)"' | yq -e '.metadata.annotations."field.cattle.io/name" = "$(HARVESTER_CONTEXT)"' - | kubectl apply -f - || true
+	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
-	@kubectx -
 
 workloads-delete: check-tools
 	@printf "\n===> Deleting Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@kapp delete -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE)
-	@kubectx -
+	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl delete -f - || true
 
 status: check-tools
 	@printf "\n===> Inspecting Running Workloads in Fleet\n";
