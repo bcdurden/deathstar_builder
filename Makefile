@@ -140,10 +140,12 @@ rancher: check-tools  # state stored in Harvester K8S
 	@$(MAKE) _terraform COMPONENT=rancher VARS='TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
 	@cp ${TERRAFORM_DIR}/rancher/kube_config_server.yaml /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && kubecm add -c -f /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && rm /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > $(HARVESTER_RANCHER_CERT_SECRET)
+# @kubectl config view --minify --raw > harvester.yaml
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@helm upgrade --install cert-manager -n cert-manager --create-namespace --set installCRDs=true --set image.repository=$(REGISTRY_URL)/jetstack/cert-manager-controller --set webhook.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-webhook --set cainjector.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-cainjector --set startupapicheck.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-ctl $(BOOTSTRAP_DIR)/rancher/cert-manager-v$(CERT_MANAGER_VERSION).tgz
-	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret $(BOOTSTRAP_DIR)/rancher/rancher-$(RANCHER_VERSION).tgz
-	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET)
+	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/rancher-$(RANCHER_VERSION).tgz
+	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET) || true
+# @ytt -f ${BOOTSTRAP_DIR}/harvester/cred_template.yaml -v harvester_kubeconfig="$(cat harvester.yaml)" | kubectl apply -f -
 	@kubectx $(HARVESTER_CONTEXT)
 rancher-destroy: check-tools
 	@printf "\n====> Destroying RKE2 + Rancher\n";
@@ -152,6 +154,9 @@ rancher-destroy: check-tools
 	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) || true
 
 # gitops targets
+# this only works if harvester cluster has been imported
+_CLUSTER_NAME = $(shell kubectl get cluster deathstar -n fleet-default -o yaml | yq -e '.status.clusterName' | tr -d '\n' | base64)
+_SECRET_NAME = $(shell kubectl get secret -n cattle-global-data -o yaml | yq -e '.items[] | select(.data.harvestercredentialConfig-clusterId == '\"$(_CLUSTER_NAME)\"')' | yq -e .metadata.name)
 workloads-check: check-tools
 	@printf "\n===> Synchronizing Workloads with Fleet (dry-run)\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
@@ -161,6 +166,7 @@ workloads-check: check-tools
 workloads-yes: check-tools
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
+	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = "$(HARVESTER_CONTEXT)"' | yq -e '.metadata.annotations."field.cattle.io/name" = "$(HARVESTER_CONTEXT)"' - | kubectl apply -f - || true
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 	@kubectx -
 
