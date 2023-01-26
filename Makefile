@@ -132,13 +132,16 @@ jumpbox: check-tools
 
 jumpbox-key: check-tools
 	@printf "\n====> Grabbing generated SSH key\n";
+	@kubectx $(HARVESTER_CONTEXT)
 	@$(MAKE) _terraform-value COMPONENT=jumpbox FIELD=".jumpbox_ssh_key.value"
 jumpbox-destroy: check-tools
 	@printf "\n====> Destroying Jumpbox\n";
+	@kubectx $(HARVESTER_CONTEXT)
 	@$(MAKE) _terraform-destroy COMPONENT=jumpbox
 
 image: check-tools
 	@printf "\n=====> Downloading Airgapped Image\n";
+	@kubectx $(HARVESTER_CONTEXT)
 	@$(MAKE) _terraform COMPONENT=image VARS='TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900 TF_VAR_image_name=$(RKE2_IMAGE_NAME)'
 
 rancher: check-tools  # state stored in Harvester K8S
@@ -155,6 +158,7 @@ rancher: check-tools  # state stored in Harvester K8S
 	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET) || true
 # @ytt -f ${BOOTSTRAP_DIR}/harvester/cred_template.yaml -v harvester_kubeconfig="$(cat harvester.yaml)" | kubectl apply -f -
 	@kubectx $(HARVESTER_CONTEXT)
+rancher-delete: rancher-destroy
 rancher-destroy: check-tools
 	@printf "\n====> Destroying RKE2 + Rancher\n";
 	@kubectx $(HARVESTER_CONTEXT)
@@ -177,6 +181,7 @@ workloads-yes: check-tools
 	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 
+workloads-destroy: workloads-delete
 workloads-delete: check-tools
 	@printf "\n===> Deleting Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
