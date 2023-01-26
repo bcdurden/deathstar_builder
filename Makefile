@@ -39,6 +39,7 @@ RANCHER_REPLICAS=3
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARVESTER_RANCHER_CERT_SECRET=rancher_cert.yaml
+AIRGAP_IMAGE_HOST_IP=
 
 # gitops automation vars
 WORKLOADS_KAPP_APP_NAME=workloads
@@ -135,6 +136,10 @@ jumpbox-key: check-tools
 jumpbox-destroy: check-tools
 	@printf "\n====> Destroying Jumpbox\n";
 	@$(MAKE) _terraform-destroy COMPONENT=jumpbox
+
+image: check-tools
+	@printf "\n=====> Downloading Airgapped Image\n";
+	@$(MAKE) _terraform COMPONENT=image VARS='TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900 TF_VAR_image_name=$(RKE2_IMAGE_NAME)'
 
 rancher: check-tools  # state stored in Harvester K8S
 	@printf "\n====> Terraforming RKE2 + Rancher\n";

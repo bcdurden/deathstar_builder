@@ -29,7 +29,7 @@ nodepools:
   memorySize: 4
   networkName: default/dev
   networkType: dhcp
-  imageName: default/ubuntu-2004
+  imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
 - etcd: false
@@ -47,6 +47,6 @@ nodepools:
   memorySize: 8
   networkName: default/dev
   networkType: dhcp
-  imageName: default/ubuntu-2004
+  imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
