@@ -121,6 +121,9 @@ git-delete: check-tools
 infra: check-tools
 	@printf "\n=====> Terraforming Infra\n";
 	@$(MAKE) _terraform COMPONENT=infra
+	@kubectl create ns services || true
+	@kubectl create ns dev || true
+	@kubectl create ns prod || true
 
 jumpbox: check-tools
 	@printf "\n====> Terraforming Jumpbox\n";
@@ -173,7 +176,6 @@ workloads-delete: check-tools
 	@printf "\n===> Deleting Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@kapp delete -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE)
-	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl delete -f - || true
 
 status: check-tools
 	@printf "\n===> Inspecting Running Workloads in Fleet\n";

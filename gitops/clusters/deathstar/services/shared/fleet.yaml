@@ -1,4 +1,4 @@
-defaultNamespace: default
+defaultNamespace: services
 helm:
   chart: cluster-template
   version: 0.0.2
