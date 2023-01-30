@@ -38,6 +38,7 @@ RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
+HARBOR_IMAGE_NAME=harbor-ubuntu
 HARVESTER_RANCHER_CERT_SECRET=rancher_cert.yaml
 AIRGAP_IMAGE_HOST_IP=
 
@@ -121,13 +122,15 @@ git-delete: check-tools
 ### terraform main targets
 infra: check-tools
 	@printf "\n=====> Terraforming Infra\n";
-	@$(MAKE) _terraform COMPONENT=infra
+	@kubectx $(HARVESTER_CONTEXT)
+	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
 	@kubectl create ns prod || true
 
 jumpbox: check-tools
 	@printf "\n====> Terraforming Jumpbox\n";
+	@kubectx $(HARVESTER_CONTEXT)
 	@$(MAKE) _terraform COMPONENT=jumpbox
 
 jumpbox-key: check-tools
