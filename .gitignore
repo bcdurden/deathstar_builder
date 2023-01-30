@@ -2,3 +2,5 @@
 **/*/rancher/kube_config_server.yaml
 .DS_Store*
 rancher_cert.yaml
+harbor.key
+jumpbox.key
