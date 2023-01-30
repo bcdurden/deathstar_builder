@@ -40,6 +40,7 @@ HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
 HARVESTER_RANCHER_CERT_SECRET=rancher_cert.yaml
+HARVESTER_CERT_SECRET=harbor_cert.yaml
 AIRGAP_IMAGE_HOST_IP=
 
 # gitops automation vars
@@ -69,7 +70,7 @@ certs: check-tools # needs CLOUD_TOKEN_FILE set and LOCAL_CLUSTER_NAME for non-d
 certs-export: check-tools
 	@printf "\n===>Exporting Certificates\n";
 	@kubectx $(HARVESTER_CONTEXT)
-	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > harbor_cert.yaml
+	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > $(HARVESTER_CERT_SECRET)
 	@kubectl get secret -n git gitea-prod-homelab-certificate -o yaml > gitea_cert.yaml
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > rancherdeathstar_cert.yaml
 certs-import: check-tools
@@ -120,10 +121,12 @@ git-delete: check-tools
 	@helm delete gitea -n git
 
 ### terraform main targets
+HARBOR_KEY=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml | yq -e '.data."tls.key"' -)
+HARBOR_CERT=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml | yq -e '.data."tls.crt"' -)
 infra: check-tools
 	@printf "\n=====> Terraforming Infra\n";
 	@kubectx $(HARVESTER_CONTEXT)
-	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
+	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_harbor_cert_b64="$(HARBOR_CERT)" TF_VAR_harbor_key_b64="$(HARBOR_KEY)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
 	@kubectl create ns prod || true

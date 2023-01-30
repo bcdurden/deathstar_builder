@@ -23,3 +23,7 @@ output "harbor_ssh_key" {
 output "harbor_key_file" {
     value = local_sensitive_file.harbor_key_pem.filename
 }
+output "harbor_admin_password" {
+    value = random_password.harbor_admin_password.result
+    sensitive = true
+}

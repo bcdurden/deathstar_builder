@@ -13,3 +13,13 @@ resource "local_sensitive_file" "harbor_key_pem" {
   content         = tls_private_key.rsa_key.private_key_pem
   file_permission = "0600"
 }
+resource "random_password" "database_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+resource "random_password" "harbor_admin_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}

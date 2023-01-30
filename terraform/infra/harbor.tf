@@ -1,4 +1,8 @@
 resource "harvester_virtualmachine" "harbor" {
+  depends_on = [
+    kubernetes_secret.harbor_config
+  ]
+
   name                 = "harbor"
   namespace            = "default"
   restart_after_update = true
@@ -34,35 +38,7 @@ resource "harvester_virtualmachine" "harbor" {
 
   cloudinit {
     type      = "noCloud"
-    
-    user_data    = <<EOT
-      #cloud-config
-      write_files:
-      - path: /etc/systemd/system/harbor.service
-        owner: root
-        content: |
-          [Unit]
-          Description=Harbor service with docker compose
-          PartOf=docker.service
-          After=docker.service
-
-          [Service]
-          Type=oneshot
-          RemainAfterExit=true
-          WorkingDirectory=/home/ubuntu/harbor
-          ExecStart=/usr/bin/docker compose up -d --remove-orphans
-          ExecStop=/usr/bin/docker compose down
-
-          [Install]
-          WantedBy=multi-user.target
-      runcmd:
-      - cd /home/ubuntu/harbor/ && ./install.sh --with-notary --with-chartmuseum  --with-trivy
-      - systemctl enable harbor.service
-      - systemctl restart harbor
-
-      ssh_authorized_keys: 
-      - ${tls_private_key.rsa_key.public_key_openssh}
-    EOT
+    user_data_secret_name = "harbor-instance-config"
 
     network_data   = <<EOT
       network:
