@@ -179,8 +179,6 @@ resource "harvester_virtualmachine" "node-ha" {
             ${var.rke2_registry}:
               endpoint:
                 - "https://${var.rke2_registry}"
-      packages:
-      - qemu-guest-agent
       runcmd:
       - - systemctl
         - enable
