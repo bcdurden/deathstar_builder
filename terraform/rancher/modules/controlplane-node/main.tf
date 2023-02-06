@@ -186,7 +186,7 @@ resource "harvester_virtualmachine" "node-ha" {
         - enable
         - '--now'
         - qemu-guest-agent.service
-      - curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${var.rke2_version} sh -
+      - INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2-artifacts sh /var/lib/rancher/install.sh
       - systemctl enable rke2-server.service
       - systemctl start rke2-server.service
       ssh_authorized_keys: 
