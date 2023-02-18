@@ -88,6 +88,7 @@ resource "harvester_virtualmachine" "node-main" {
         - qemu-guest-agent.service
       - INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2-artifacts sh /var/lib/rancher/install.sh
       - cat /var/lib/rancher/kube-vip-k3s |  vipAddress=${var.master_vip} vipInterface=${var.master_vip_interface} sh | sudo tee /var/lib/rancher/rke2/server/manifests/vip.yaml
+      - sed -ie 's|ghcr.io/kube-vip|${var.rke2_registry}/kube-vip|g' /var/lib/rancher/rke2/server/manifests/vip.yaml
       - systemctl enable rke2-server.service
       - systemctl start rke2-server.service
       ssh_authorized_keys: 
@@ -185,8 +186,6 @@ resource "harvester_virtualmachine" "node-ha" {
             ghcr.io:
               endpoint:
                 - "https://${var.rke2_registry}"
-      packages:
-      - qemu-guest-agent
       runcmd:
       - - systemctl
         - enable

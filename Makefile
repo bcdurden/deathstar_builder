@@ -70,9 +70,9 @@ certs: check-tools # needs CLOUD_TOKEN_FILE set and LOCAL_CLUSTER_NAME for non-d
 certs-export: check-tools
 	@printf "\n===>Exporting Certificates\n";
 	@kubectx $(HARVESTER_CONTEXT)
-	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > $(HARVESTER_CERT_SECRET)
-	@kubectl get secret -n git gitea-prod-homelab-certificate -o yaml > gitea_cert.yaml
-	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > rancherdeathstar_cert.yaml
+	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > $(HARVESTER_CERT_SECRET) || true
+	@kubectl get secret -n git gitea-prod-homelab-certificate -o yaml > gitea_cert.yaml || true
+	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > rancherdeathstar_cert.yaml || true
 certs-import: check-tools
 	@printf "\n===>Importing Certificates\n";
 	@kubectx $(HARVESTER_CONTEXT)
