@@ -77,6 +77,9 @@ resource "harvester_virtualmachine" "node" {
             ${var.rke2_registry}:
               endpoint:
                 - "https://${var.rke2_registry}"
+            ghcr.io:
+              endpoint:
+                - "https://${var.rke2_registry}"
       runcmd:
       - - systemctl
         - enable

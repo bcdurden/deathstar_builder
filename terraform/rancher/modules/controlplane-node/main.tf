@@ -78,6 +78,9 @@ resource "harvester_virtualmachine" "node-main" {
             ${var.rke2_registry}:
               endpoint:
                 - "https://${var.rke2_registry}"
+            ghcr.io:
+              endpoint:
+                - "https://${var.rke2_registry}"
       runcmd:
       - - systemctl
         - enable
@@ -179,6 +182,9 @@ resource "harvester_virtualmachine" "node-ha" {
             ${var.rke2_registry}:
               endpoint:
                 - "https://${var.rke2_registry}"
+            ghcr.io:
+              endpoint:
+                - "https://${var.rke2_registry}"
       packages:
       - qemu-guest-agent
       runcmd:
@@ -186,7 +192,7 @@ resource "harvester_virtualmachine" "node-ha" {
         - enable
         - '--now'
         - qemu-guest-agent.service
-      - curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${var.rke2_version} sh -
+      - INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2-artifacts sh /var/lib/rancher/install.sh
       - systemctl enable rke2-server.service
       - systemctl start rke2-server.service
       ssh_authorized_keys: 
