@@ -1,7 +1,7 @@
 kind: GitRepo
 apiVersion: fleet.cattle.io/v1alpha1
 metadata:
-  name: monitoring
+  name: servicemesh
   namespace: fleet-default
 spec:
   repo: https://github.com/bcdurden/deathstar_builder.git
