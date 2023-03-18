@@ -1,0 +1,8 @@
+defaultNamespace: dev
+helm:
+  chart: cluster-template
+  version: 0.0.4
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
+  releaseName: cluster-template-dev-edgerunner
+  valuesFiles:
+    - values.yaml
