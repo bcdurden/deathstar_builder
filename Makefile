@@ -6,7 +6,7 @@ TERRAFORM_DIR := ${WORKING_DIR}/terraform
 WORKLOAD_DIR := ${WORKING_DIR}/workloads
 GITOPS_DIR := ${WORKING_DIR}/gitops
 
-HARVESTER_CONTEXT="deathstar"
+HARVESTER_CONTEXT=deathstar
 BASE_URL=sienarfleet.systems
 GITEA_URL=git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
@@ -36,6 +36,8 @@ RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
+RANCHER_ACCESS_KEY=token-lwlvx
+RANCHER_SECRET_KEY=hn96g67nbmxz75gwjcc2cgwc9p4m5wr8hc6f4qxqg2rp6kg9fs8z4z
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
@@ -183,7 +185,7 @@ workloads-check: check-tools
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - 
 	@kubectx -
 
-workloads-yes: check-tools
+workloads-yes: cloud-provider-creds 
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
@@ -200,6 +202,22 @@ status: check-tools
 	@kubectx $(LOCAL_CLUSTER_NAME)
 	@kapp inspect -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE)
 	@kubectx -
+
+cloud-provider-creds: check-tools
+	@printf "\n===> Creating Cloud Provider creds for all nodes\n";
+	@kubectx $(LOCAL_CLUSTER_NAME)
+	@curl -ks -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
+	-H 'Content-Type: application/json' \
+	-u $(RANCHER_ACCESS_KEY):$(RANCHER_SECRET_KEY) \
+	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "$(HARVESTER_CONTEXT)"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
+	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic prodblue-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl annotate secret services-shared-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='services-shared'
+	@kubectl annotate secret sandboxalpha-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='sandbox-alpha'
+	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
+	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
 
 # terraform sub-targets (don't use directly)
 _terraform: check-tools
