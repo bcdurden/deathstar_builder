@@ -7,7 +7,7 @@ loki:
   isDefault: true
   persistence:
     enabled: true
-    storageClassName: longhorn
+    storageClassName: harvester
     size: 5Gi
   image:
     repository: harbor.sienarfleet.systems/grafana/loki
