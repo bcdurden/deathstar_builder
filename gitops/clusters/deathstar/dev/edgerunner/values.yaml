@@ -1,14 +1,14 @@
 cloudprovider: harvester
 cloudCredentialSecretName: cattle-global-data:deathstar
-cloudProviderConfigSecretName: secret://fleet-default:prodblue-cloudprovider
+cloudProviderConfigSecretName: secret://fleet-default:devedgerunner-cloudprovider
 cluster:
   annotations: {}
   labels:
-    environment: prod
-    cluster_name: blue
+    environment: dev
+    cluster_name: edgerunner
     location: deathstar
-  name: prod-blue
-kubernetesVersion: v1.24.7+rke2r1
+  name: dev-edgerunner
+kubernetesVersion: v1.24.7+k3s1
 monitoring:
   enabled: false
 rke:
@@ -17,9 +17,9 @@ rke:
 nodepools:
 - etcd: true
   controlplane: true
-  worker: false
+  worker: true
   displayName: control-plane-nodes
-  name: control-plane-pb-pool
+  name: control-plane-dev-pool
   labels: {}
   taints: {}
   quantity: 1
@@ -28,9 +28,9 @@ nodepools:
   diskBus: virtio
   cpuCount: 2
   memorySize: 4
-  networkName: default/prod
+  networkName: default/dev
   networkType: dhcp
-  imageName: default/ubuntu-rke2-airgap-harvester
+  imageName: default/ubuntu-2004
   vmNamespace: default
   sshUser: ubuntu
   userData: ""
@@ -38,18 +38,18 @@ nodepools:
   controlplane: false
   worker: true
   displayName: worker-nodes
-  name: worker-pb-pool
+  name: worker-dev-pool
   labels: {}
   taints: {}
   quantity: 3
   paused: false
-  diskSize: 200
+  diskSize: 100
   diskBus: virtio
-  cpuCount: 4
-  memorySize: 8
-  networkName: default/prod
+  cpuCount: 2
+  memorySize: 4
+  networkName: default/dev
   networkType: dhcp
-  imageName: default/ubuntu-rke2-airgap-harvester
+  imageName: default/ubuntu-2004
   vmNamespace: default
   sshUser: ubuntu
   userData: ""

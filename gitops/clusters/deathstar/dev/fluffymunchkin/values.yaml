@@ -8,7 +8,7 @@ cluster:
     cluster_name: fluffymunchkin
     location: deathstar
   name: dev-fluffymunchkin
-kubernetesVersion: v1.24.7+rke2r1
+kubernetesVersion: v1.24.7+k3s1
 monitoring:
   enabled: false
 rke:
@@ -41,12 +41,12 @@ nodepools:
   name: worker-dev-pool
   labels: {}
   taints: {}
-  quantity: 2
+  quantity: 3
   paused: false
   diskSize: 100
   diskBus: virtio
-  cpuCount: 4
-  memorySize: 8
+  cpuCount: 2
+  memorySize: 4
   networkName: default/dev
   networkType: dhcp
   imageName: default/ubuntu-rke2-airgap-harvester
