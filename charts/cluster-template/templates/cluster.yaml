@@ -23,17 +23,6 @@ spec:
   # specify rancher helm chart values deployed into downstream cluster
   # rancherValues: {}
   rkeConfig:
-    {{- if eq $.Values.cloudprovider "harvester" }}
-    chartValues:
-      harvester-cloud-provider:
-        cloudConfigPath: /var/lib/rancher/rke2/etc/config-files/cloud-provider-config
-        clusterName: {{ .Values.cluster.name }}
-    machineSelectorConfig:
-    - config:
-        cloud-provider-config: {{ .Values.cloudProviderConfigSecretName }}
-        cloud-provider-name: harvester
-        protect-kernel-defaults: false
-    {{- end }}
     machineGlobalConfig:
       cni: calico
       disable-apiserver: false
@@ -52,6 +41,17 @@ spec:
         docker: false
         protect-kernel-defaults: false
         selinux: false
+    {{- if eq $.Values.cloudprovider "harvester" }}
+    chartValues:
+      harvester-cloud-provider:
+        cloudConfigPath: /var/lib/rancher/rke2/etc/config-files/cloud-provider-config
+        clusterName: {{ .Values.cluster.name }}
+    machineSelectorConfig:
+    - config:
+        cloud-provider-config: {{ .Values.cloudProviderConfigSecretName }}
+        cloud-provider-name: harvester
+        protect-kernel-defaults: false
+    {{- end }}
     {{- if ne .Values.cloudprovider "custom" }}
     machinePools:
     {{- if .Values.nodepools }} {{ range $index, $nodepool := .Values.nodepools }}
