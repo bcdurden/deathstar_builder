@@ -46,7 +46,7 @@ nodepools:
   diskSize: 200
   diskBus: virtio
   cpuCount: 4
-  memorySize: 16
+  memorySize: 8
   networkName: default/prod
   networkType: dhcp
   imageName: default/ubuntu-rke2-airgap-harvester

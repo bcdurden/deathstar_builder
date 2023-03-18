@@ -6,7 +6,7 @@ TERRAFORM_DIR := ${WORKING_DIR}/terraform
 WORKLOAD_DIR := ${WORKING_DIR}/workloads
 GITOPS_DIR := ${WORKING_DIR}/gitops
 
-HARVESTER_CONTEXT=deathstar
+HARVESTER_CONTEXT="deathstar"
 BASE_URL=sienarfleet.systems
 GITEA_URL=git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
@@ -209,7 +209,7 @@ cloud-provider-creds: check-tools
 	@curl -ks -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
 	-H 'Content-Type: application/json' \
 	-u $(RANCHER_ACCESS_KEY):$(RANCHER_SECRET_KEY) \
-	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "$(HARVESTER_CONTEXT)"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
+	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "deathstar"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
 	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
