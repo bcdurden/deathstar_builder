@@ -19,7 +19,7 @@ nodepools:
   controlplane: true
   worker: true
   displayName: control-plane-nodes
-  name: control-plane-dev-pool
+  name: control-plane-dev-edgerunner-pool
   labels: {}
   taints: {}
   quantity: 1
@@ -38,7 +38,7 @@ nodepools:
   controlplane: false
   worker: true
   displayName: worker-nodes
-  name: worker-dev-pool
+  name: worker-dev-edgerunner-pool
   labels: {}
   taints: {}
   quantity: 3
