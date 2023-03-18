@@ -15,17 +15,17 @@ persistence:
   persistentVolumeClaim:
     registry:
       size: 5Gi
-      storageClass: "longhorn"
+      storageClass: "harvester"
     chartmuseum:
-      storageClass: "longhorn"
+      storageClass: "harvester"
     jobservice:
-      storageClass: "longhorn"
+      storageClass: "harvester"
     database:
-      storageClass: "longhorn"
+      storageClass: "harvester"
     redis:
-      storageClass: "longhorn"
+      storageClass: "harvester"
     trivy:
-      storageClass: "longhorn"
+      storageClass: "harvester"
 portal:
   image:
     repository: harbor.sienarfleet.systems/goharbor/harbor-portal
