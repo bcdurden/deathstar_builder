@@ -1,0 +1,71 @@
+base:
+  enabled: true
+cni:
+  enabled: true
+  excludeNamespaces:
+    - istio-system
+    - kube-system
+  logLevel: info
+  repository: rancher/mirrored-istio-install-cni
+  tag: 1.14.3-distroless
+dns:
+  enabled: false
+egressGateways:
+  enabled: false
+  type: NodePort
+forceInstall: false
+global:
+  cattle: {}
+  defaultPodDisruptionBudget:
+    enabled: true
+  proxy:
+    repository: rancher/mirrored-istio-proxyv2
+    tag: 1.14.3-distroless
+  proxy_init:
+    repository: rancher/mirrored-istio-proxyv2
+    tag: 1.14.3-distroless
+  rbac:
+    pspEnabled: true
+ingressGateways:
+  enabled: true
+  type: LoadBalancer
+installer:
+  debug:
+    secondsSleep: 0
+  releaseMirror:
+    enabled: false
+  repository: rancher/istio-installer
+  tag: 1.14.3-rancher1
+istiodRemote:
+  enabled: false
+kiali:
+  auth:
+    strategy: anonymous
+  deployment:
+    ingress_enabled: false
+  enabled: true
+  external_services:
+    grafana:
+      in_cluster_url: http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80
+      url: http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80
+    prometheus:
+      custom_metrics_url: http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090
+      url: http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090
+    tracing:
+      in_cluster_url: http://tracing.istio-system.svc:16686/jaeger
+      use_grpc: false
+nodeSelector: {}
+overlayFile: ''
+pilot:
+  enabled: true
+  repository: rancher/mirrored-istio-pilot
+  tag: 1.14.3-distroless
+tag: 1.14.3
+telemetry:
+  enabled: true
+  v2:
+    enabled: true
+tolerations: []
+tracing:
+  contextPath: /jaeger
+  enabled: false

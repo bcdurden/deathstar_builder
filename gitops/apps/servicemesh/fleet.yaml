@@ -1,0 +1,8 @@
+defaultNamespace: cattle-neuvector-system
+helm:
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
+  chart: rancher-istio
+  version: 101.0.0+up1.14.3
+  releaseName: istio
+  valuesFiles:
+    - values.yaml
