@@ -1,5 +1,6 @@
 cloudprovider: harvester
 cloudCredentialSecretName: cattle-global-data:deathstar
+cloudProviderConfigSecretName: fleet-default:deathstar-cloudprovider
 cluster:
   annotations: {}
   labels:

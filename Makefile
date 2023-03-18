@@ -25,15 +25,15 @@ REGISTRY_USER=admin
 REGISTRY_PASSWORD=""
 
 # Rancher on Harvester Info
-RKE2_VIP=10.10.5.5
+RKE2_VIP=10.10.5.10
 RANCHER_TARGET_NETWORK=services
 RANCHER_URL=rancher.deathstar.$(BASE_URL)
 RANCHER_HA_MODE=false
-RANCHER_CP_CPU_COUNT=2
-RANCHER_CP_MEMORY_SIZE="4Gi"
+RANCHER_CP_CPU_COUNT=4
+RANCHER_CP_MEMORY_SIZE="8Gi"
 RANCHER_WORKER_COUNT=3
 RANCHER_NODE_SIZE="40Gi"
-RANCHER_HARVESTER_WORKER_CPU_COUNT=2
+RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
@@ -63,6 +63,7 @@ certs: check-tools # needs CLOUD_TOKEN_FILE set and LOCAL_CLUSTER_NAME for non-d
 	@kubectl apply -f $(BOOTSTRAP_DIR)/certs/issuer-prod-clouddns.yaml --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create ns harbor --dry-run=client -o yaml | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-harbor.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
+	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-wildcard.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
 	@kubectl create ns git --dry-run=client -o yaml | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-gitea.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-rancherdeathstar.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
@@ -71,7 +72,8 @@ certs-export: check-tools
 	@printf "\n===>Exporting Certificates\n";
 	@kubectx $(HARVESTER_CONTEXT)
 	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > $(HARVESTER_CERT_SECRET) || true
-	@kubectl get secret -n git gitea-prod-homelab-certificate -o yaml > gitea_cert.yaml || true
+	@kubectl get secret -n git gitea-prod-certificate -o yaml > gitea_cert.yaml || true
+	@kubectl get secret wildcard-prod-certificate -o yaml > wildcard_cert.yaml || true
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > rancherdeathstar_cert.yaml || true
 certs-import: check-tools
 	@printf "\n===>Importing Certificates\n";

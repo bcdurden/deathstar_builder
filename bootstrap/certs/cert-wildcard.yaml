@@ -3,12 +3,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: gitea-prod
-  namespace: git
+  name: wildcard-prod
 spec:
-  secretName: gitea-prod-certificate
+  secretName: wildcard-prod-certificate
   issuerRef:
     name: letsencrypt-prod-clouddns
     kind: ClusterIssuer
   dnsNames:
-  - #@ "git." + data.values.base_url
+  - #@ "*." + data.values.base_url

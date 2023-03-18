@@ -12,6 +12,21 @@ resource "harvester_virtualmachine" "harbor" {
     ssh-user = "ubuntu"
   }
 
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Waiting for cloud-init to complete...'",
+      "cloud-init status --wait > /dev/null",
+      "echo 'Completed cloud-init!'",
+    ]
+
+    connection {
+      type        = "ssh"
+      host        = self.network_interface[index(self.network_interface.*.name, "default")].ip_address
+      user        = "ubuntu"
+      private_key = tls_private_key.rsa_key.public_key_openssh
+    }
+  }
+
   cpu    = 4
   memory = "8Gi"
 
@@ -50,7 +65,7 @@ resource "harvester_virtualmachine" "harbor" {
             addresses: [10.10.5.5/24]
             gateway4: 10.10.5.1
             nameservers:
-              addresses: [10.10.5.2]
+              addresses: [10.10.0.1]
     EOT
   }
 }
