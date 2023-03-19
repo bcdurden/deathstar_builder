@@ -28,7 +28,7 @@ variable "master_vip" {
 variable "rancher_server_dns" {
   type        = string
   description = "DNS host name of the Rancher server"
-  default = "rancher.home.sienarfleet.systems"
+  default = "rancher.sienarfleet.systems"
 }
 variable "registry_url" {
   type = string
@@ -75,4 +75,10 @@ variable "harvester_rke2_image_name" {
 }
 variable "target_network_name" {
   type = string
+}
+variable "carbide_password" {
+    type = string
+}
+variable "carbide_username" {
+    type = string
 }

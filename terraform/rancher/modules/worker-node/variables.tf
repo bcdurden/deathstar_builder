@@ -58,3 +58,9 @@ variable "worker_node_memory_size" {
 variable "rke2_registry" {
     type = string
 }
+variable "carbide_password" {
+    type = string
+}
+variable "carbide_username" {
+    type = string
+}

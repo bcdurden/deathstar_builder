@@ -15,7 +15,7 @@ CERT_MANAGER_VERSION=1.8.1
 RANCHER_VERSION=2.7.0
 
 # Carbide info
-CARBIDE_USER="internal-tester-read"
+CARBIDE_USER="brian-durden-read-token"
 CARBIDE_PASSWORD=""
 IMAGES_FILE=""
 
@@ -158,13 +158,13 @@ rancher: check-tools  # state stored in Harvester K8S
 	@printf "\n====> Terraforming RKE2 + Rancher\n";
 	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) || true
 	@kubectx $(HARVESTER_CONTEXT)
-	@$(MAKE) _terraform COMPONENT=rancher VARS='TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
+	@$(MAKE) _terraform COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
 	@cp ${TERRAFORM_DIR}/rancher/kube_config_server.yaml /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && kubecm add -c -f /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && rm /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > $(HARVESTER_RANCHER_CERT_SECRET)
 # @kubectl config view --minify --raw > harvester.yaml
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@helm upgrade --install cert-manager -n cert-manager --create-namespace --set installCRDs=true --set image.repository=$(REGISTRY_URL)/jetstack/cert-manager-controller --set webhook.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-webhook --set cainjector.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-cainjector --set startupapicheck.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-ctl $(BOOTSTRAP_DIR)/rancher/cert-manager-v$(CERT_MANAGER_VERSION).tgz
-	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/rancher-$(RANCHER_VERSION).tgz
+	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set "carbide.whitelabel.image=$(REGISTRY_URL)/carbide/carbide-whitelabel" --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/carbide-rancher-$(RANCHER_VERSION).tgz
 	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET) || true
 # @ytt -f ${BOOTSTRAP_DIR}/harvester/cred_template.yaml -v harvester_kubeconfig="$(cat harvester.yaml)" | kubectl apply -f -
 	@kubectx $(HARVESTER_CONTEXT)
@@ -172,7 +172,7 @@ rancher-delete: rancher-destroy
 rancher-destroy: check-tools
 	@printf "\n====> Destroying RKE2 + Rancher\n";
 	@kubectx $(HARVESTER_CONTEXT)
-	@$(MAKE) _terraform-destroy COMPONENT=rancher VARS='TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
+	@$(MAKE) _terraform-destroy COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
 	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) || true
 
 # gitops targets
@@ -213,9 +213,10 @@ cloud-provider-creds: check-tools
 	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic devedgerunner-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic prodblue-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl annotate secret services-shared-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='services-shared'
-	@kubectl annotate secret sandboxalpha-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='sandbox-alpha'
+	@kubectl annotate secret devedgerunner-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-edgerunner'
 	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
 	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
 

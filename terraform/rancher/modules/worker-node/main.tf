@@ -49,48 +49,10 @@ resource "harvester_virtualmachine" "node" {
     image       = var.node_image_id
     auto_delete = true
   }
-
+  
   cloudinit {
     type      = "noCloud"
-    user_data    = <<EOT
-      #cloud-config
-      write_files:
-      - path: /etc/rancher/rke2/config.yaml
-        owner: root
-        content: |
-          token: ${var.cluster_token}
-          server: https://${var.master_hostname}:9345
-          system-default-registry: ${var.rke2_registry}
-      - path: /etc/hosts
-        owner: root
-        content: |
-          127.0.0.1 localhost
-          127.0.0.1 "${var.node_prefix}-${count.index}"
-          ${var.master_vip} ${var.master_hostname}
-      - path: /etc/rancher/rke2/registries.yaml
-        owner: root
-        content: |
-          mirrors:
-            docker.io:
-              endpoint:
-                - "https://${var.rke2_registry}"
-            ${var.rke2_registry}:
-              endpoint:
-                - "https://${var.rke2_registry}"
-            ghcr.io:
-              endpoint:
-                - "https://${var.rke2_registry}"
-      runcmd:
-      - - systemctl
-        - enable
-        - '--now'
-        - qemu-guest-agent.service
-      - INSTALL_RKE2_TYPE="agent" INSTALL_RKE2_ARTIFACT_PATH=/var/lib/rancher/rke2-artifacts sh /var/lib/rancher/install.sh
-      - systemctl enable rke2-agent.service
-      - systemctl start rke2-agent.service
-      ssh_authorized_keys: 
-      - ${var.ssh_pubkey}
-    EOT
+    user_data_secret_name = "worker-config-${count.index}"
     network_data = var.network_data
   }
 }
