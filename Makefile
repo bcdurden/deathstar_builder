@@ -29,15 +29,15 @@ RKE2_VIP=10.10.5.10
 RANCHER_TARGET_NETWORK=services
 RANCHER_URL=rancher.deathstar.$(BASE_URL)
 RANCHER_HA_MODE=false
-RANCHER_CP_CPU_COUNT=4
-RANCHER_CP_MEMORY_SIZE="8Gi"
+RANCHER_CP_CPU_COUNT=2
+RANCHER_CP_MEMORY_SIZE="4Gi"
 RANCHER_WORKER_COUNT=3
 RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
-RANCHER_ACCESS_KEY=token-lwlvx
-RANCHER_SECRET_KEY=hn96g67nbmxz75gwjcc2cgwc9p4m5wr8hc6f4qxqg2rp6kg9fs8z4z
+RANCHER_ACCESS_KEY=token-7vgq5
+RANCHER_SECRET_KEY=thwkvx2d7tln24bh9wrwqsn69wlhsmrvh27gs5mwv4fs752c475k4w
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
@@ -164,7 +164,7 @@ rancher: check-tools  # state stored in Harvester K8S
 # @kubectl config view --minify --raw > harvester.yaml
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@helm upgrade --install cert-manager -n cert-manager --create-namespace --set installCRDs=true --set image.repository=$(REGISTRY_URL)/jetstack/cert-manager-controller --set webhook.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-webhook --set cainjector.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-cainjector --set startupapicheck.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-ctl $(BOOTSTRAP_DIR)/rancher/cert-manager-v$(CERT_MANAGER_VERSION).tgz
-	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set "carbide.whitelabel.image=$(REGISTRY_URL)/carbide/carbide-whitelabel" --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/carbide-rancher-$(RANCHER_VERSION).tgz
+	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set "carbide.whitelabel.image=$(REGISTRY_URL)/carbide/carbide/carbide-whitelabel" --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/carbide-rancher-v$(RANCHER_VERSION).tgz
 	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET) || true
 # @ytt -f ${BOOTSTRAP_DIR}/harvester/cred_template.yaml -v harvester_kubeconfig="$(cat harvester.yaml)" | kubectl apply -f -
 	@kubectx $(HARVESTER_CONTEXT)

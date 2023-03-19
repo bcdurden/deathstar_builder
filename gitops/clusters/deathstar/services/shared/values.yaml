@@ -43,7 +43,7 @@ nodepools:
   taints: {}
   quantity: 3
   paused: false
-  diskSize: 120
+  diskSize: 40
   diskBus: virtio
   cpuCount: 4
   memorySize: 8
