@@ -3,6 +3,10 @@ resource "harvester_virtualmachine" "node-main" {
   namespace            = var.namespace
   restart_after_update = true
 
+  depends_on = [
+    kubernetes_secret.cp_main_config
+  ]
+
   description = "Mgmt Cluster Control Plane node"
   tags = {
     ssh-user = "ubuntu"

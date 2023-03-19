@@ -31,3 +31,6 @@ provider "helm" {
     config_path = var.kubeconfig_filename
   }
 }
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}

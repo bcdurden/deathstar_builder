@@ -1,6 +1,10 @@
 resource "harvester_virtualmachine" "node" {
   count = var.worker_count
 
+  depends_on = [
+    kubernetes_secret.worker_config
+  ]
+
   name                 = "${var.node_prefix}-${count.index}"
   namespace            = var.namespace
   restart_after_update = true

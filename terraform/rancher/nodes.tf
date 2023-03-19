@@ -11,6 +11,7 @@ module "controlplane-nodes" {
   disk_size = var.node_disk_size
   controlplane_node_core_count = var.control_plane_cpu_count
   controlplane_node_memory_size = var.control_plane_memory_size
+  carbide_username = var.carbide_username
   carbide_password = var.carbide_password
 
   ha_mode = var.control_plane_ha_mode
@@ -33,5 +34,6 @@ module "worker" {
   disk_size = var.node_disk_size
   worker_node_core_count = var.worker_cpu_count
   worker_node_memory_size = var.worker_memory_size
+  carbide_username = var.carbide_username
   carbide_password = var.carbide_password
 }
