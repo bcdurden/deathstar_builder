@@ -1,4 +1,4 @@
-defaultNamespace: cattle-neuvector-system
+defaultNamespace: cis-operator-system
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: rancher-cis-benchmark-crd
