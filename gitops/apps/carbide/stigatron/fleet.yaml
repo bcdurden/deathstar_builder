@@ -1,0 +1,8 @@
+defaultNamespace: carbide-stigatron-system
+helm:
+  repo: https://harbor.sienarfleet.systems/chartrepo/carbide
+  chart: stigatron
+  version: 0.1.39
+  releaseName: stigatron
+  valuesFiles:
+    - values.yaml
