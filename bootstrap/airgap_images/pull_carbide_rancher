@@ -10,7 +10,7 @@ DEST_DIRECTORY=/tmp/cert-manager-images
 DEST_TAR=/tmp/cert-manager-images.tar.gz  # Change this to the location you want for your resulting TAR 
 
 # Cert Manager Chart Version
-CERT_MANAGER_RELEASE=v1.8.1
+CERT_MANAGER_RELEASE=v1.10.2
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -62,7 +62,7 @@ DEST_DIRECTORY=/tmp/rancher-images
 DEST_TAR=/tmp/rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
 
 # Longhorn Version
-RANCHER_RELEASE=v2.7.0
+RANCHER_RELEASE=v2.7.1
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
