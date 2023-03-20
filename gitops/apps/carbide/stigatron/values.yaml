@@ -52,4 +52,4 @@ heimdall2:
       # accessMode: "ReadWriteOnce"
 global:
   cattle:
-    systemDefaultRegistry: "harbor.sienarfleet.systems/carbide"
+    systemDefaultRegistry: "rgcrprod.azurecr.us"

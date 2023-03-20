@@ -13,7 +13,7 @@ monitoring:
   enabled: false
 registries:
   configs:
-    rgcrprod.azureacr.us:
+    rgcrprod.azurecr.us:
       authConfigSecretName: carbide-registry
       caBundle: ''
       insecureSkipVerify: false
