@@ -1,0 +1,41 @@
+sudo apt update
+sudo apt install docker.io
+sudo gpasswd -a ubuntu docker
+wget https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo install docker-compose-linux-x86_64 /usr/local/lib/docker/cli-plugins/docker-compose
+
+
+installer:
+wget https://github.com/goharbor/harbor/releases/download/v2.5.5/harbor-offline-installer-v2.5.5.tgz
+tar xvf harbor-offline-installer-v2.5.5.tgz
+
+
+certs:
+-copy to /data/certs
+-follow format of yourdomain.com.crt and .key
+/data
+└── cert
+    ├── harbor.sienarfleet.systems.cert
+    ├── harbor.sienarfleet.systems.key
+    └── notary.sienarfleet.systems.cert
+-copy to docker too and enforce cert vs crt
+/etc/docker
+├── certs.d
+│   ├── harbor.sienarfleet.systems
+│   │   ├── harbor.sienarfleet.systems.cert
+│   │   └── harbor.sienarfleet.systems.key
+│   └── notary.sienarfleet.systems
+│       ├── notary.sienarfleet.systems.cert
+│       └── notary.sienarfleet.systems.key
+
+
+copy harbor.yml.tmpl to harbor.yml
+sudo virt-customize -a <image> --run-command "echo -n > /etc/machine-id"
+sudo virt-sparsify --convert qcow2 --compress <image> <output>.img
+
+
+
+./install.sh --with-notary --with-chartmuseum  --with-trivy
+rm harbor.v2.5.5.tar.gz
+
