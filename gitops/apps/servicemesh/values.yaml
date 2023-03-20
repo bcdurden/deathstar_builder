@@ -15,7 +15,6 @@ egressGateways:
   type: NodePort
 forceInstall: false
 global:
-  cattle: {}
   defaultPodDisruptionBudget:
     enabled: true
   proxy:
