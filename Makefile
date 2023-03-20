@@ -229,13 +229,7 @@ stigatron-ui: check-tools
 # downstream
 carbide-license: check-tools
 	@printf "\n===>Creating Carbide License\n";
-# @kubectx ${TARGET_CLUSTER}
-# @kubectl create namespace carbide-stigatron-system || true
 	@printf "Copy-paste this into your target cluster shell:\nkubectl create namespace carbide-stigatron-system; kubectl create secret generic stigatron-license -n carbide-stigatron-system --from-literal=license=${CARBIDE_LICENSE}\n"
-stigatron: check-tools
-	@printf "\n===>Creating Stigatron Operator\n";
-	@kubectx ${TARGET_CLUSTER}
-	@helm upgrade --install -n carbide-stigatron-system stigatron -f ${GITOPS_DIR}/apps/carbide/stigatron/values.yaml $(BOOTSTRAP_DIR)/rancher/stigatron-0.1.39.tgz
 
 # terraform sub-targets (don't use directly)
 _terraform: check-tools
