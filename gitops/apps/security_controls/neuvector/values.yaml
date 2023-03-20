@@ -97,7 +97,7 @@ controller:
       - ReadWriteMany
     capacity: null
     enabled: false
-    storageClass: ''
+    storageClass: null
   ranchersso:
     enabled: true
   replicas: 3
@@ -162,6 +162,11 @@ enforcer:
   tolerations:
     - effect: NoSchedule
       key: node-role.kubernetes.io/master
+global:
+  cattle:
+    systemDefaultRegistry: harbor.sienarfleet.systems
+    url: https://rancher.deathstar.sienarfleet.systems
+  systemDefaultRegistry: harbor.sienarfleet.systems
 k3s:
   enabled: false
   runtimePath: /run/k3s/containerd/containerd.sock
@@ -205,6 +210,6 @@ oem: null
 openshift: false
 psp: false
 rbac: true
-registry: harbor.sienarfleet.systems
+registry: docker.io
 resources: {}
 serviceAccount: neuvector
