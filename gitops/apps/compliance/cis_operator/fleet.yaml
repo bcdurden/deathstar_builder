@@ -6,3 +6,6 @@ helm:
   releaseName: cis-benchmark
   valuesFiles:
     - values.yaml
+
+dependsOn:
+- name: compliance-gitops-apps-compliance-rancher-cis-benchmark-crd
