@@ -53,8 +53,8 @@ spec:
         protect-kernel-defaults: false
     {{- end }}
     {{- if .Values.registries }}
-    registries:
-      configs: {{ .Values.registries }}
+    registries: 
+{{ toYaml .Values.registries | indent 6 }}
     {{- end }}
     {{- if ne .Values.cloudprovider "custom" }}
     machinePools:

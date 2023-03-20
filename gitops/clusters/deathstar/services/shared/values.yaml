@@ -11,6 +11,12 @@ cluster:
 kubernetesVersion: v1.24.7+rke2r1
 monitoring:
   enabled: false
+registries:
+  configs:
+    rgcrprod.azureacr.us:
+      authConfigSecretName: carbide-registry
+      caBundle: ''
+      insecureSkipVerify: false
 rke:
   localClusterAuthEndpoint:
     enabled: false

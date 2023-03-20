@@ -72,3 +72,4 @@ nodepools:
   sshUser: ubuntu
   userdata: ""
   cloudconfig: ""
+  registries: {}
