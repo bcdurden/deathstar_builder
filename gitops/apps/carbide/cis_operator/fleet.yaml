@@ -1,0 +1,8 @@
+defaultNamespace: cattle-neuvector-system
+helm:
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
+  chart: rancher-cis-benchmark
+  version: 3.0.0
+  releaseName: cis-benchmark
+  valuesFiles:
+    - values.yaml

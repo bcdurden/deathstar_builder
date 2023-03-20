@@ -4,4 +4,4 @@ annotations:
 apiVersion: v1
 description: Cluster template for rke2
 name: cluster-template
-version: 0.0.4
+version: 0.0.5

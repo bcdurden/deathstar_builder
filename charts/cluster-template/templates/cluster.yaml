@@ -52,6 +52,10 @@ spec:
         cloud-provider-name: harvester
         protect-kernel-defaults: false
     {{- end }}
+    {{- if .Values.registries }}
+    registries:
+      configs: {{ .Values.registries }}
+    {{- end }}
     {{- if ne .Values.cloudprovider "custom" }}
     machinePools:
     {{- if .Values.nodepools }} {{ range $index, $nodepool := .Values.nodepools }}
