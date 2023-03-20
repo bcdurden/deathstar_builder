@@ -31,8 +31,8 @@ RKE2_VIP=10.10.5.10
 RANCHER_TARGET_NETWORK=services
 RANCHER_URL=rancher.deathstar.$(BASE_URL)
 RANCHER_HA_MODE=false
-RANCHER_CP_CPU_COUNT=2
-RANCHER_CP_MEMORY_SIZE="4Gi"
+RANCHER_CP_CPU_COUNT=4
+RANCHER_CP_MEMORY_SIZE="8Gi"
 RANCHER_WORKER_COUNT=3
 RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
@@ -219,6 +219,7 @@ cloud-provider-creds: check-tools
 	@kubectl annotate secret devedgerunner-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-edgerunner'
 	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
 	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
+	@rm deathstar-kubeconfig
 
 stigatron-ui: check-tools
 	@printf "\n===>Creating Stigatron UI\n";

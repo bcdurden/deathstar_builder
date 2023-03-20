@@ -80,7 +80,7 @@ controller:
   image:
     hash: null
     repository: rancher/mirrored-neuvector-controller
-    tag: 5.0.2
+    tag: 5.1.1
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
@@ -156,7 +156,7 @@ enforcer:
   image:
     hash: null
     repository: rancher/mirrored-neuvector-enforcer
-    tag: 5.0.2
+    tag: 5.1.1
   priorityClassName: null
   resources: {}
   tolerations:
@@ -177,7 +177,7 @@ manager:
   image:
     hash: null
     repository: rancher/mirrored-neuvector-manager
-    tag: 5.0.2
+    tag: 5.1.1
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
