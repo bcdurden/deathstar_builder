@@ -6,9 +6,9 @@ TERRAFORM_DIR := ${WORKING_DIR}/terraform
 WORKLOAD_DIR := ${WORKING_DIR}/workloads
 GITOPS_DIR := ${WORKING_DIR}/gitops
 
-HARVESTER_CONTEXT="deathstar"
-BASE_URL=sienarfleet.systems
-GITEA_URL=git.$(BASE_URL)
+HARVESTER_CONTEXT := "deathstar"
+BASE_URL := sienarfleet.systems
+GITEA_URL := git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
 CLOUDFLARE_TOKEN=""
 CERT_MANAGER_VERSION=1.10.2
@@ -22,14 +22,14 @@ CARBIDE_LICENSE := $(shell yq e .license ${CARBIDE_TOKEN_FILE})
 IMAGES_FILE=""
 
 # Registry info
-REGISTRY_URL=harbor.$(BASE_URL)
+REGISTRY_URL := harbor.$(BASE_URL)
 REGISTRY_USER=admin
 REGISTRY_PASSWORD=""
 
 # Rancher on Harvester Info
 RKE2_VIP=10.10.5.10
 RANCHER_TARGET_NETWORK=services
-RANCHER_URL=rancher.deathstar.$(BASE_URL)
+RANCHER_URL := rancher.deathstar.${BASE_URL}
 RANCHER_HA_MODE=false
 RANCHER_CP_CPU_COUNT=4
 RANCHER_CP_MEMORY_SIZE="8Gi"
@@ -51,6 +51,7 @@ AIRGAP_IMAGE_HOST_IP=
 WORKLOADS_KAPP_APP_NAME=workloads
 WORKLOADS_NAMESPACE=default
 TARGET_CLUSTER=
+RANDOM_PASSWORD := ${shell head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 13}
 
 check-tools: ## Check to make sure you have the right tools
 	$(foreach exec,$(REQUIRED_BINARIES),\
@@ -159,7 +160,7 @@ image: check-tools
 
 rancher: check-tools  # state stored in Harvester K8S
 	@printf "\n====> Terraforming RKE2 + Rancher\n";
-	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) || true
+	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) > /dev/null 2>&1 || true
 	@kubectx ${HARVESTER_CONTEXT}
 	@$(MAKE) _terraform COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
 	@cp ${TERRAFORM_DIR}/rancher/kube_config_server.yaml /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && kubecm add -c -f /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && rm /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml
@@ -168,14 +169,51 @@ rancher: check-tools  # state stored in Harvester K8S
 	@helm upgrade --install cert-manager -n cert-manager --create-namespace --set installCRDs=true --set image.repository=$(REGISTRY_URL)/jetstack/cert-manager-controller --set webhook.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-webhook --set cainjector.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-cainjector --set startupapicheck.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-ctl $(BOOTSTRAP_DIR)/rancher/cert-manager-v$(CERT_MANAGER_VERSION).tgz
 	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set "carbide.whitelabel.image=$(REGISTRY_URL)/carbide/carbide/carbide-whitelabel" --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/carbide-rancher-v$(RANCHER_VERSION).tgz
 	@kubectl apply -f $(HARVESTER_RANCHER_CERT_SECRET) || true
-	@kubectl create secret generic --type kubernetes.io/basic-auth carbide-registry -n fleet-default --from-literal=username=${CARBIDE_USER} --from-literal=password=${CARBIDE_PASSWORD} --dry-run=client -o yaml | kc apply -f -
-	@kubectx ${HARVESTER_CONTEXT}
+	@kubectl create ns fleet-default || true
+	@kubectl create secret generic --type kubernetes.io/basic-auth carbide-registry -n fleet-default --from-literal=username=${CARBIDE_USER} --from-literal=password=${CARBIDE_PASSWORD} --dry-run=client -o yaml | kubectl apply -f - 2>&1 | grep -i -v "Warn" | grep -i -v "Deprecat"
+	@until [ $$(curl -sk https://${RANCHER_URL}/v3-public/authtokens | grep uuid | wc -l) = 1 ]; do sleep 2;	echo -e -n ".";	done
+	@printf "Rancher installed, now onto bootstrapping...\n";
+# @$(MAKE) rancher-bootstrap
+
+rancher-bootstrap:
+	@printf "\n====> Bootstrapping Rancher\n";
+	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
+	@printf "\nRancher password: ${RANDOM_PASSWORD}\n";
+	@curl -sk https://${RANCHER_URL}/v3/users?action=changepassword -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"admin"}' | jq -r '.token')" -d '{"currentPassword":"admin","newPassword":"'${RANDOM_PASSWORD}'"}'  > /dev/null 2>&1 
+	@curl -sk https://${RANCHER_URL}/v3/settings/server-url -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -X PUT -d '{"name":"server-url","value":"https://${RANCHER_URL}"}'  > /dev/null 2>&1
+	@curl -sk https://${RANCHER_URL}/v3/settings/telemetry-opt -X PUT -H 'content-type: application/json' -H 'accept: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"value":"out"}' > /dev/null 2>&1
+	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"type":"catalog.cattle.io.clusterrepo","metadata":{"name":"rancher-ui-plugins"},"spec":{"gitBranch":"main","gitRepo":"https://github.com/rancher/ui-plugin-charts"}}' > /dev/null 2>&1
+	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos/rancher-charts?action=install -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"charts":[{"chartName":"ui-plugin-operator-crd","version":"101.0.0+up0.1.0","releaseName":"ui-plugin-operator-crd","annotations":{"catalog.cattle.io/ui-source-repo-type":"cluster","catalog.cattle.io/ui-source-repo":"rancher-charts"},"values":{"global":{"cattle":{"systemDefaultRegistry":"rgcrprod.azurecr.us"}}}}],"wait":true,"namespace":"cattle-ui-plugin-system"}'
+	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos/rancher-charts?action=install -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"charts":[{"chartName":"ui-plugin-operator","version":"101.0.0+up0.1.0","releaseName":"ui-plugin-operator","annotations":{"catalog.cattle.io/ui-source-repo-type":"cluster","catalog.cattle.io/ui-source-repo":"rancher-charts"},"values":{"global":{"cattle":{"systemDefaultRegistry":"rgcrprod.azurecr.us"}}}}],"wait":true,"namespace":"cattle-ui-plugin-system"}'
+	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
+	@sleep 10
+	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.19.tgz
+	@$(MAKE) cloud-provider-creds PASSWORD=${RANDOM_PASSWORD}
+
 rancher-delete: rancher-destroy
 rancher-destroy: check-tools
 	@printf "\n====> Destroying RKE2 + Rancher\n";
 	@kubectx ${HARVESTER_CONTEXT}
 	@$(MAKE) _terraform-destroy COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=$(shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -)'
 	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) || true
+
+cloud-provider-creds: check-tools
+	@printf "\n===> Creating Cloud Provider creds for all nodes\n";
+	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
+	@API_TOKEN=$(shell curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${PASSWORD}"}' | jq -r '.token') curl -ks -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
+	-H 'Content-Type: application/json' \
+	-H "Authorization: Bearer $$API_TOKEN" \
+	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "deathstar"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
+	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic devedgerunner-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic prodblue-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl annotate secret services-shared-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='services-shared'
+	@kubectl annotate secret devedgerunner-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-edgerunner'
+	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
+	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
+	@rm deathstar-kubeconfig
 
 # gitops targets
 # this only works if harvester cluster has been imported
@@ -186,7 +224,7 @@ workloads-check: check-tools
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - 
 
-workloads-yes: cloud-provider-creds 
+workloads-yes: 
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
 	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
@@ -203,43 +241,25 @@ status: check-tools
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
 	@kapp inspect -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE)
 
-cloud-provider-creds: check-tools
-	@printf "\n===> Creating Cloud Provider creds for all nodes\n";
-	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
-	@curl -ks -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
-	-H 'Content-Type: application/json' \
-	-u $(RANCHER_ACCESS_KEY):$(RANCHER_SECRET_KEY) \
-	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "deathstar"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
-	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl create secret generic devedgerunner-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl create secret generic prodblue-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl annotate secret services-shared-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='services-shared'
-	@kubectl annotate secret devedgerunner-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-edgerunner'
-	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
-	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
-	@rm deathstar-kubeconfig
-
-stigatron-ui: check-tools
-	@printf "\n===>Creating Stigatron UI\n";
-	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
-	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.19.tgz
-
 # downstream
 carbide-license: check-tools
 	@printf "\n===>Creating Carbide License\n";
-	@printf "Copy-paste this into your target cluster shell:\nkubectl create namespace carbide-stigatron-system; kubectl create secret generic stigatron-license -n carbide-stigatron-system --from-literal=license=${CARBIDE_LICENSE}\n"
+	@printf "Copy-paste this into your target cluster shell:\nkubectl create namespace carbide-stigatron-system; kubectl create secret generic stigatron-license -n carbide-stigatron-system --from-literal=license=${CARBIDE_LICENSE} --dry-run=client -o yaml | kubectl apply -f -\n"
 
 # terraform sub-targets (don't use directly)
 _terraform: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) init
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) apply
 _terraform-init: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) init
 _terraform-apply: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) apply
 _terraform-value: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
 	@terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) output -json | jq -r '$(FIELD)'
 _terraform-destroy: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) destroy
