@@ -17,6 +17,10 @@ registries:
       authConfigSecretName: carbide-registry
       caBundle: ''
       insecureSkipVerify: false
+  mirrors:
+    docker.io:
+      endpoint:
+        - harbor.sienarfleet.systems
 rke:
   localClusterAuthEndpoint:
     enabled: false

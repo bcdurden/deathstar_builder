@@ -38,8 +38,6 @@ RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
-RANCHER_ACCESS_KEY=token-vq6zt
-RANCHER_SECRET_KEY=tr6k2x6l4k76js4dqwxsrt74vvst8jq6w99b66kxgf4f2hrt2thp4n
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
@@ -173,7 +171,7 @@ rancher: check-tools  # state stored in Harvester K8S
 	@kubectl create secret generic --type kubernetes.io/basic-auth carbide-registry -n fleet-default --from-literal=username=${CARBIDE_USER} --from-literal=password=${CARBIDE_PASSWORD} --dry-run=client -o yaml | kubectl apply -f - 2>&1 | grep -i -v "Warn" | grep -i -v "Deprecat"
 	@until [ $$(curl -sk https://${RANCHER_URL}/v3-public/authtokens | grep uuid | wc -l) = 1 ]; do sleep 2;	echo -e -n ".";	done
 	@printf "Rancher installed, now onto bootstrapping...\n";
-# @$(MAKE) rancher-bootstrap
+	@$(MAKE) rancher-bootstrap
 
 rancher-bootstrap:
 	@printf "\n====> Bootstrapping Rancher\n";
@@ -200,9 +198,9 @@ rancher-destroy: check-tools
 cloud-provider-creds: check-tools
 	@printf "\n===> Creating Cloud Provider creds for all nodes\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
-	@API_TOKEN=$(shell curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${PASSWORD}"}' | jq -r '.token') curl -ks -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
+	@curl -sk -X POST https://$(RANCHER_URL)/k8s/clusters/$$(kubectl get clusters.management.cattle.io -o yaml | yq e '.items[] | select(.metadata.labels."provider.cattle.io" == "harvester")'.metadata.name)/v1/harvester/kubeconfig \
 	-H 'Content-Type: application/json' \
-	-H "Authorization: Bearer $$API_TOKEN" \
+	-H "Authorization: Bearer $(shell curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${PASSWORD}"}' | jq -r '.token')" \
 	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "deathstar"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
 	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -

@@ -9,6 +9,16 @@ cluster:
     location: deathstar
   name: dev-fluffymunchkin
 kubernetesVersion: v1.24.7+k3s1
+registries:
+  configs:
+    rgcrprod.azurecr.us:
+      authConfigSecretName: carbide-registry
+      caBundle: ''
+      insecureSkipVerify: false
+  mirrors:
+    docker.io:
+      endpoint:
+        - harbor.sienarfleet.systems
 monitoring:
   enabled: false
 rke:
