@@ -186,7 +186,6 @@ rancher-bootstrap:
 	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
 	@sleep 10
 	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.19.tgz
-	@$(MAKE) cloud-provider-creds PASSWORD=${RANDOM_PASSWORD}
 
 rancher-delete: rancher-destroy
 rancher-destroy: check-tools
@@ -225,6 +224,7 @@ workloads-check: check-tools
 workloads-yes: 
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
+	@$(MAKE) cloud-provider-creds PASSWORD=${PASSWORD}
 	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 
