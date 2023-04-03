@@ -131,7 +131,7 @@ cve:
     priorityClassName: null
     replicas: 3
     resources: {}
-    runAsUser: ubuntu
+    runAsUser: 1000
     strategy:
       rollingUpdate:
         maxSurge: 1
@@ -145,7 +145,7 @@ cve:
       repository: rancher/mirrored-neuvector-updater
       tag: latest
     priorityClassName: null
-    runAsUser: ubuntu
+    runAsUser: 1000
     schedule: 0 0 * * *
     secure: false
 docker:
@@ -200,7 +200,7 @@ manager:
     host: null
     termination: passthrough
     tls: null
-  runAsUser: ubuntu
+  runAsUser: 1000
   svc:
     annotations: {}
     loadBalancerIP: null
