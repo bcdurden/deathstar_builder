@@ -5,6 +5,8 @@ test_pod:
 loki:
   enabled: true
   isDefault: true
+  rbac:
+    pspEnabled: true
   persistence:
     enabled: true
     storageClassName: harvester

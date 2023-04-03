@@ -8,6 +8,8 @@ loki:
 promtail:
   enabled: true
   extraArgs: []
+  rbac:
+    pspEnabled: true
     
   image:
     # -- The Docker registry
