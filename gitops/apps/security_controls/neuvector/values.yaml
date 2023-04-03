@@ -208,7 +208,7 @@ manager:
   tolerations: null
 oem: null
 openshift: false
-psp: false
+psp: true
 rbac: true
 registry: docker.io
 resources: {}
