@@ -6,6 +6,3 @@ helm:
   releaseName: vault
   valuesFiles:
     - values.yaml
-
-dependsOn:
-- name: secret-store-gitops-apps-secret-store-consul
