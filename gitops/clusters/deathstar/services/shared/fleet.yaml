@@ -1,7 +1,7 @@
 defaultNamespace: services
 helm:
   chart: cluster-template
-  version: 0.0.5
+  version: 0.0.6
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   releaseName: cluster-template-service-shared
   valuesFiles:
