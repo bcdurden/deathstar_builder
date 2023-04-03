@@ -1,0 +1,6 @@
+carbide_username = 
+carbide_password = 
+registry_url = "rgcrprod.azurecr.us"
+harvester_rke2_image_name = 
+target_network_name =
+master_vip = 
