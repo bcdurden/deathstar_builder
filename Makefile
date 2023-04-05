@@ -184,6 +184,7 @@ rancher-bootstrap:
 	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos/rancher-charts?action=install -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"charts":[{"chartName":"ui-plugin-operator-crd","version":"101.0.0+up0.1.0","releaseName":"ui-plugin-operator-crd","annotations":{"catalog.cattle.io/ui-source-repo-type":"cluster","catalog.cattle.io/ui-source-repo":"rancher-charts"},"values":{"global":{"cattle":{"systemDefaultRegistry":"rgcrprod.azurecr.us"}}}}],"wait":true,"namespace":"cattle-ui-plugin-system"}'
 	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos/rancher-charts?action=install -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"charts":[{"chartName":"ui-plugin-operator","version":"101.0.0+up0.1.0","releaseName":"ui-plugin-operator","annotations":{"catalog.cattle.io/ui-source-repo-type":"cluster","catalog.cattle.io/ui-source-repo":"rancher-charts"},"values":{"global":{"cattle":{"systemDefaultRegistry":"rgcrprod.azurecr.us"}}}}],"wait":true,"namespace":"cattle-ui-plugin-system"}'
 	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
 	@sleep 10
 	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.19.tgz
 
@@ -202,7 +203,6 @@ cloud-provider-creds: check-tools
 	-H "Authorization: Bearer $(shell curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${PASSWORD}"}' | jq -r '.token')" \
 	-d '{"clusterRoleName": "harvesterhci.io:cloudprovider", "namespace": "default", "serviceAccountName": "deathstar"}' | xargs | sed 's/\\n/\n/g' > deathstar-kubeconfig
 	@kubectl create secret generic services-shared-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
-	@kubectl create secret generic sandboxalpha-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic devfluffymunchkin-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic devedgerunner-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create secret generic prodblue-cloudprovider -n fleet-default --from-file=credential=deathstar-kubeconfig  --dry-run=client -o yaml | kubectl apply -f -
@@ -224,7 +224,6 @@ workloads-check: check-tools
 workloads-yes: 
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
-	@$(MAKE) cloud-provider-creds PASSWORD=${PASSWORD}
 	@kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 

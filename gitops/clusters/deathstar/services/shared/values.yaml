@@ -70,9 +70,9 @@ nodepools:
   imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
-  userData: |
+  userdata: |
     write_files:
-    - path: /root/rke2-cis-sysctl.conf
+    - path: /etc/sysctl.d/60-rke2-cis.conf
       owner: root
       content: |
         vm.panic_on_oom=0
@@ -80,7 +80,6 @@ nodepools:
         kernel.panic=10
         kernel.panic_on_oops=1
     runcmd:
-    - cp -f /root/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
     - systemctl restart systemd-sysctl
 - etcd: false
@@ -101,9 +100,9 @@ nodepools:
   imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
-  userData: |
+  userdata: |
     write_files:
-    - path: /root/rke2-cis-sysctl.conf
+    - path: /etc/sysctl.d/60-rke2-cis.conf
       owner: root
       content: |
         vm.panic_on_oom=0
@@ -111,6 +110,4 @@ nodepools:
         kernel.panic=10
         kernel.panic_on_oops=1
     runcmd:
-    - sleep 5
-    - cp -f /root/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl

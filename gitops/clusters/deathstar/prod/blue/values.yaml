@@ -33,7 +33,7 @@ nodepools:
   imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
-  userData: ""
+  userdata: ""
 - etcd: false
   controlplane: false
   worker: true
@@ -52,4 +52,4 @@ nodepools:
   imageName: default/ubuntu-rke2-airgap-harvester
   vmNamespace: default
   sshUser: ubuntu
-  userData: ""
+  userdata: ""

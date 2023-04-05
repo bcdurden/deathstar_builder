@@ -43,7 +43,7 @@ nodepools:
   imageName: default/ubuntu-2004
   vmNamespace: default
   sshUser: ubuntu
-  userData: ""
+  userdata: ""
 - etcd: false
   controlplane: false
   worker: true
@@ -62,4 +62,4 @@ nodepools:
   imageName: default/ubuntu-2004
   vmNamespace: default
   sshUser: ubuntu
-  userData: ""
+  userdata: ""
