@@ -6,10 +6,6 @@ server:
     pullPolicy: IfNotPresent
     repository: harbor.sienarfleet.systems/hashicorp/vault
     tag: 1.11.3
-ui:
-  enabled: true
-  serviceType: ClusterIP
-  externalPort: 8200
 
   ingress:
     enabled: true
@@ -35,9 +31,13 @@ ui:
     #       port:
     #         number: use-annotation
     tls: 
-     - secretName: wildcard-svc-certificate
-       hosts:
-         - *.svc.sienarfleet.systems
+      - secretName: wildcard-svc-certificate
+        hosts:
+          - *.svc.sienarfleet.systems
+ui:
+  enabled: true
+  serviceType: ClusterIP
+  externalPort: 8200
 
 csi:
   image:
