@@ -186,7 +186,7 @@ rancher-bootstrap:
 	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
 	@sleep 10
-	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.19.tgz
+	@helm install -n carbide-stigatron-system --create-namespace stigatron-ui $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.20.tgz
 
 rancher-delete: rancher-destroy
 rancher-destroy: check-tools
