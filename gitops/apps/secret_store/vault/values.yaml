@@ -1,8 +1,7 @@
 server:
   affinity: ""
   ha:
-    enabled: true
-    replicas: 3
+    enabled: false
   image:
     pullPolicy: IfNotPresent
     repository: harbor.sienarfleet.systems/hashicorp/vault
@@ -12,11 +11,11 @@ ui:
   serviceType: ClusterIP
   externalPort: 8200
 
-# csi:
-#   image:
-#     pullPolicy: IfNotPresent
-#     repository: hashicorp/vault-csi-provider
-#     tag: 1.2.0
+csi:
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.sienarfleet.systems/hashicorp/vault-csi-provider
+    tag: 1.2.0
 
 injector:
   agentImage:

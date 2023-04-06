@@ -145,6 +145,19 @@ for image in $(curl --silent -L https://github.com/rancherfederal/carbide-releas
     fi
 done
 
+source_image=rgcrprod.azurecr.us/carbide/carbide-whitelabel:0.1.0
+dest_image=$(echo $source_image | sed "s/rgcrprod.azurecr.us/TARGET_REGISTRY/g")
+
+img_dir=$(mktemp -d $DEST_DIRECTORY/carbide-image.XXXXXXX)
+img_id_num=${img_dir: -21}
+echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
+
+printf "Exporting $source_image\n"
+cosign save --dir "$img_dir" $source_image
+if [ $? != 0 ]; then
+  cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
+fi
+
 # Compress directory
 tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
 
