@@ -1,8 +1,6 @@
 defaultNamespace: carbide-stigatron-system
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/carbide
-  chart: stigatron
-  version: 0.1.40
-  releaseName: stigatron
-  valuesFiles:
-    - values.yaml
+  chart: airgapped-docs
+  version: 0.1.44
+  releaseName: airgapped-docs
