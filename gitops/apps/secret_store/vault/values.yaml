@@ -11,6 +11,34 @@ ui:
   serviceType: ClusterIP
   externalPort: 8200
 
+  ingress:
+    enabled: true
+    labels: {}
+    annotations: {}
+      # |
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+      #   or
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+
+    activeService: true
+    hosts:
+      - host: vault.svc.sienarfleet.systems
+        paths: []
+    ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
+    extraPaths: []
+    # - path: /*
+    #   backend:
+    #     service:
+    #       name: ssl-redirect
+    #       port:
+    #         number: use-annotation
+    tls: 
+     - secretName: wildcard-svc-certificate
+       hosts:
+         - *.svc.sienarfleet.systems
+
 csi:
   image:
     pullPolicy: IfNotPresent

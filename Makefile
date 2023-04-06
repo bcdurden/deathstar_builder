@@ -13,6 +13,7 @@ GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
 CLOUDFLARE_TOKEN=""
 CERT_MANAGER_VERSION=1.9.2
 RANCHER_VERSION=2.7.1
+CLOUD_TOKEN_FILE=/Volumes/BIGBOY/keys/cloud_dns_account_key.json
 
 # Carbide info
 CARBIDE_TOKEN_FILE=/Volumes/BIGBOY/keys/carbide.yaml
@@ -63,11 +64,12 @@ certs: check-tools # needs CLOUD_TOKEN_FILE set and LOCAL_CLUSTER_NAME for non-d
     --namespace cert-manager \
 	--create-namespace \
 	--set installCRDs=true || true
-	@kubectl create secret generic clouddns-dns01-solver-svc-acct -n cert-manager --from-file=$(CLOUD_TOKEN_FILE) --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic clouddns-dns01-solver-svc-acct -n cert-manager --from-file=${CLOUD_TOKEN_FILE} --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl apply -f $(BOOTSTRAP_DIR)/certs/issuer-prod-clouddns.yaml --dry-run=client -o yaml | kubectl apply -f -
 	@kubectl create ns harbor --dry-run=client -o yaml | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-harbor.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-wildcard.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
+	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-svc-wildcard.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
 	@kubectl create ns git --dry-run=client -o yaml | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-gitea.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
 	@ytt -f $(BOOTSTRAP_DIR)/certs/cert-rancherdeathstar.yaml -v base_url=$(BASE_URL) | kubectl apply -f -
@@ -78,6 +80,7 @@ certs-export: check-tools
 	@kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml > $(HARVESTER_CERT_SECRET) || true
 	@kubectl get secret -n git gitea-prod-certificate -o yaml > gitea_cert.yaml || true
 	@kubectl get secret wildcard-prod-certificate -o yaml > wildcard_cert.yaml || true
+	@kubectl get secret wildcard-svc-certificate -o yaml > wildcard_svc_cert.yaml || true
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > rancherdeathstar_cert.yaml || true
 certs-import: check-tools
 	@printf "\n===>Importing Certificates\n";
@@ -211,6 +214,11 @@ cloud-provider-creds: check-tools
 	@kubectl annotate secret devfluffymunchkin-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='dev-fluffymunchkin'
 	@kubectl annotate secret prodblue-cloudprovider -n fleet-default --overwrite v2prov-secret-authorized-for-cluster='prod-blue'
 	@rm deathstar-kubeconfig
+
+wildcard-cert: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
+	@kubectl get secret wildcard-svc-certificate -o yaml > wildcard_svc_cert.yaml
+	@printf "\nCert available here: wildcard_svc_cert.yaml\n";
 
 # gitops targets
 # this only works if harvester cluster has been imported
