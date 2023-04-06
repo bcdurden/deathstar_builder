@@ -4,7 +4,6 @@ SOURCE_REGISTRY=rgcrprod.azurecr.us
 SOURCE_REGISTRY_USER=$1
 SOURCE_REGISTRY_PASS=$2
 
-
 # Working directories & TAR
 DEST_DIRECTORY=/tmp/cert-manager-images
 DEST_TAR=/tmp/cert-manager-images.tar.gz  # Change this to the location you want for your resulting TAR 
@@ -61,7 +60,7 @@ rm -rf $DEST_DIRECTORY
 DEST_DIRECTORY=/tmp/rancher-images
 DEST_TAR=/tmp/rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
 
-# Longhorn Version
+# Rancher Version
 RANCHER_RELEASE=v2.7.1
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
@@ -86,6 +85,55 @@ for image in $RANCHER_IMAGES; do
     
     # Create manifest to use during load
     img_dir=$(mktemp -d $DEST_DIRECTORY/rancher-image.XXXXXXX)
+    img_id_num=${img_dir: -21}
+    echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
+    
+    # Save image locally
+    printf "Exporting $source_image\n"
+    cosign save --dir "$img_dir" $source_image
+    if [ $? != 0 ]; then
+      cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
+    fi
+done
+
+# Compress directory
+tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
+
+# Clean up working directory
+rm -rf $DEST_DIRECTORY
+
+# Working directories & TAR
+DEST_DIRECTORY=/tmp/carbide-rancher-images
+DEST_TAR=/tmp/carbide-rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
+
+CARBIDE_VERSION=0.1.0
+
+if [[ -d "$DEST_DIRECTORY" ]]; then
+    echo "ERROR: Directory '$DEST_DIRECTORY' exists."
+    echo "Change or delete it before running."
+    exit 1
+fi
+
+if [[ -d "$DEST_TAR" ]]; then
+    echo "ERROR: Directory '$DEST_TAR' exists."
+    echo "Change or delete it before running."
+    exit 1
+fi
+
+cosign login -u $SOURCE_REGISTRY_USER -p $SOURCE_REGISTRY_PASS $SOURCE_REGISTRY
+mkdir -p "$DEST_DIRECTORY"
+
+# Add the cert manager repo (required Helm)
+helm repo add carbide-charts https://rancherfederal.github.io/carbide-charts
+helm repo update
+
+# Grab the list of images and download them (requires docker, grep, sed, and awk)
+for image in $(curl --silent -L https://github.com/rancherfederal/carbide-releases/releases/download/$CARBIDE_VERSION/carbide-images.txt); do
+    source_image=$(echo $image)
+    dest_image=$(echo $image | sed "s/rgcrprod.azurecr.us/TARGET_REGISTRY/g")
+    
+    # Create manifest to use during load
+    img_dir=$(mktemp -d $DEST_DIRECTORY/carbide-image.XXXXXXX)
     img_id_num=${img_dir: -21}
     echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
     
