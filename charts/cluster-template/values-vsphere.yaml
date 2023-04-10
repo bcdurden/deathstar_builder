@@ -1,6 +1,15 @@
 cloudprovider: vsphere
 
 cloudCredentialSecretName: vsphere
+vcenter:
+  host: ""
+  skip_tls_verify: false
+  datacenters: ""
+  username: ""
+  password: ""
+
+vsphere_cpi_cred_secret_name: ""
+vsphere_csi_cred_secret_name: ""
 
 # Specify nodepool options. Can add multiple node groups, specify etcd, controlplane and worker roles.
 nodepools:

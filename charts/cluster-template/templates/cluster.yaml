@@ -60,6 +60,46 @@ spec:
         protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
         selinux: {{ .Values.selinux | default false }}
     {{- end }}
+    {{- if eq $.Values.cloudprovider "vsphere" }}
+    chartValues:
+      rancher-vsphere-cpi:
+        vCenter:
+          host: {{ .Values.vcenter.host }}
+          username: {{ .Values.vcenter.username }}
+          password: {{ .Values.vcenter.password }}
+          insecureFlag: {{ .Values.vcenter.skip_tls_verify }}
+          labels:
+            generate: false
+          port: 443
+          datacenters: {{ .Values.vcenter.datacenters }}
+          credentialsSecret:
+            name: vsphere-cpi-sc
+            generate: true
+      rancher-vsphere-csi:
+        csiController:
+          csiResizer:
+            enabled: true
+        csiMigration:
+          enabled: true
+        improvedVolumeTopology:
+          enabled: true
+        triggerCsiFullsync:
+          enabled: true
+        vCenter:
+          datacenters: {{ .Values.vcenter.datacenters }}
+          host: {{ .Values.vcenter.host }}
+          username: {{ .Values.vcenter.username }}
+          password: {{ .Values.vcenter.password }}
+          insecureFlag: {{ .Values.vcenter.skip_tls_verify }}
+          configSecret:
+            name: vsphere-csi-secret
+            generate: true
+        storageClass:
+          enabled: true
+          allowVolumeExpansion: true
+          name: vsphere-csi-sc
+          isDefault: true
+    {{- end }}
     {{- if .Values.registries }}
     registries: 
 {{ toYaml .Values.registries | indent 6 }}
