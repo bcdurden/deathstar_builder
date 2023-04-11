@@ -3,6 +3,6 @@ helm:
   chart: cluster-template
   version: 0.0.7
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
-  releaseName: cluster-template-service-shared
+  releaseName: cluster-template-vsphere-bigbang-delta
   valuesFiles:
     - values.yaml
