@@ -111,6 +111,7 @@ nodepools:
   # If using a non-B2D image you can specify the ssh port
   sshPort: "22"
 
+  sshUser: ubuntu
   # If using a non-B2D image the uploaded keys will need chown'ed, defaults to staff e.g. docker:staff
   sshUserGroup: staff
 
@@ -170,7 +171,7 @@ nodepools:
 
   # If using a non-B2D image you can specify the ssh port
   sshPort: "22"
-
+  sshUser: ubuntu
   # If using a non-B2D image the uploaded keys will need chown'ed, defaults to staff e.g. docker:staff
   sshUserGroup: staff
 

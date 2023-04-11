@@ -1,0 +1,6 @@
+defaultNamespace: default
+helm:
+  chart: https://github.com/bcdurden/multicloud-rancher-demo/raw/main/charts/cluster-template.tar.gz
+  releaseName: cluster-template-prod-green
+  valuesFiles:
+    - values.yaml

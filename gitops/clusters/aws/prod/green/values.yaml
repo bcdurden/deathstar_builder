@@ -1,0 +1,255 @@
+cloudprovider: amazonec2
+cloudCredentialSecretName: cattle-global-data:aws-multicloud
+cluster:
+  annotations: {}
+  labels:
+    environment: prod
+    cluster_name: green
+    location: aws
+  name: rke2-aws-prod-green
+kubernetesVersion: v1.24.9+rke2r2
+system_default_registry: rgcrprod.azurecr.us
+monitoring:
+  enabled: false
+registries:
+  configs:
+    rgcrprod.azurecr.us:
+      authConfigSecretName: carbide-registry
+      caBundle: ''
+      insecureSkipVerify: false
+rke:
+  localClusterAuthEndpoint:
+    enabled: false
+profile: cis-1.6
+selinux: true
+secrets_encryption: true
+protect_kernel_defaults: true
+write_kubeconfig_mode: "0640"
+use_service_account_credentials: true
+kube_apiserver_arg: 
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+- authorization-mode=RBAC,Node
+- anonymous-auth=false
+- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml
+- audit-log-mode=blocking-strict
+- audit-log-maxage=30
+kube_scheduler_arg:
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+kube_controller_manager_arg:
+- bind-address=127.0.0.1
+- use-service-account-credentials=true
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+kubelet_arg:
+- protect-kernel-defaults=true
+- read-only-port=0
+- authorization-mode=Webhook
+- streaming-connection-idle-timeout=5m
+nodepools:
+- etcd: true
+  controlplane: true
+  worker: false
+  # displayName: control-plane-a
+  labels: {}
+  taints: {}
+  quantity: 1
+  paused: false
+  name: control-plane-prod-green-pool-a
+  ami: ami-0f1289f37e46c1eff
+  deviceName: /dev/sda1
+  encryptEbsVolume: false
+  endpoint: ""
+  iamInstanceProfile: K8sUnrestrictedCloudProviderRole
+  insecureTransport: false
+  instanceType: t3a.xlarge
+  region: us-gov-west-1
+  createSecurityGroup: true
+  securityGroups: []
+  keypairName: ""
+  securityGroupReadonly: false
+  sshKeyContents: ""
+  subnetId: subnet-0d0cd26cf51719ef2
+  monitoring: false
+  openPort:
+  - "8080"
+  - "8443"
+  - "443"
+  privateAddressOnly: false
+  requestSpotInstance: false
+  tags: Owner,brian,KeepRunning,true
+  retries: 5
+  rootSize: 20
+  sshUser: ubuntu
+  volumeType: gp2
+  vpcId: vpc-06a1e85ad08595b21
+  useEbsOptimizedInstance: false
+  usePrivateAddress: false
+  userdata: |
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
+    - systemctl restart systemd-sysctl
+  zone: a
+- etcd: false
+  controlplane: false
+  worker: true
+  # displayName: worker-a
+  labels: {}
+  taints: {}
+  quantity: 4
+  paused: false
+  name: worker-prod-green-pool-a
+  ami: ami-0f1289f37e46c1eff
+  deviceName: /dev/sda1
+  encryptEbsVolume: false
+  endpoint: ""
+  iamInstanceProfile: K8sUnrestrictedCloudProviderRole
+  insecureTransport: false
+  instanceType: c5a.xlarge
+  region: us-gov-west-1
+  createSecurityGroup: true
+  securityGroups: []
+  keypairName: ""
+  securityGroupReadonly: false
+  sshKeyContents: ""
+  subnetId: subnet-0d0cd26cf51719ef2
+  monitoring: false
+  openPort:
+  - "8080"
+  - "8443"
+  - "443"
+  privateAddressOnly: false
+  requestSpotInstance: false
+  tags: Owner,brian,KeepRunning,true
+  retries: 5
+  rootSize: 120
+  sshUser: ubuntu
+  volumeType: gp2
+  vpcId: vpc-06a1e85ad08595b21
+  useEbsOptimizedInstance: false
+  usePrivateAddress: false
+  userdata: |
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - systemctl restart systemd-sysctl
+  zone: a
+- etcd: false
+  controlplane: false
+  worker: true
+  # displayName: worker-b
+  labels: {}
+  taints: {}
+  quantity: 3
+  paused: false
+  name: worker-prod-green-pool-b
+  ami: ami-0f1289f37e46c1eff
+  deviceName: /dev/sda1
+  encryptEbsVolume: false
+  endpoint: ""
+  iamInstanceProfile: K8sUnrestrictedCloudProviderRole
+  insecureTransport: false
+  instanceType: c5a.xlarge
+  region: us-gov-west-1
+  createSecurityGroup: true
+  securityGroups: []
+  keypairName: ""
+  securityGroupReadonly: false
+  sshKeyContents: ""
+  subnetId: subnet-09bd4e09215b4f39f
+  monitoring: false
+  openPort:
+  - "8080"
+  - "8443"
+  - "443"
+  privateAddressOnly: false
+  requestSpotInstance: false
+  tags: Owner,brian,KeepRunning,true
+  retries: 5
+  rootSize: 120
+  sshUser: ubuntu
+  volumeType: gp2
+  vpcId: vpc-06a1e85ad08595b21
+  useEbsOptimizedInstance: false
+  usePrivateAddress: false
+  userdata: |
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - systemctl restart systemd-sysctl
+  zone: b
+- etcd: false
+  controlplane: false
+  worker: true
+  # displayName: worker-c
+  labels: {}
+  taints: {}
+  quantity: 3
+  paused: false
+  name: worker-prod-green-pool-c
+  ami: ami-0f1289f37e46c1eff
+  deviceName: /dev/sda1
+  encryptEbsVolume: false
+  endpoint: ""
+  iamInstanceProfile: K8sUnrestrictedCloudProviderRole
+  insecureTransport: false
+  instanceType: c5a.xlarge
+  region: us-gov-west-1
+  createSecurityGroup: true
+  securityGroups: []
+  keypairName: ""
+  securityGroupReadonly: false
+  sshKeyContents: ""
+  subnetId: subnet-0116d99e8f363e0cb
+  monitoring: false
+  openPort:
+  - "8080"
+  - "8443"
+  - "443"
+  privateAddressOnly: false
+  requestSpotInstance: false
+  tags: Owner,brian,KeepRunning,true
+  retries: 5
+  rootSize: 120
+  sshUser: ubuntu
+  volumeType: gp2
+  vpcId: vpc-06a1e85ad08595b21
+  useEbsOptimizedInstance: false
+  usePrivateAddress: false
+  userdata: |
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - systemctl restart systemd-sysctl
+  zone: c
