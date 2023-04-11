@@ -18,7 +18,7 @@ nodepools:
 - etcd: true
   controlplane: true
   worker: false
-  displayName: control-plane-nodes
+  # displayName: control-plane-nodes
   name: control-plane-pb-pool
   labels: {}
   taints: {}
@@ -37,7 +37,7 @@ nodepools:
 - etcd: false
   controlplane: false
   worker: true
-  displayName: worker-nodes
+  # displayName: worker-nodes
   name: worker-pb-pool
   labels: {}
   taints: {}

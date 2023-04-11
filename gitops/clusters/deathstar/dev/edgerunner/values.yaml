@@ -28,7 +28,7 @@ nodepools:
 - etcd: true
   controlplane: true
   worker: true
-  displayName: control-plane-nodes
+  # displayName: control-plane-nodes
   name: control-plane-dev-edgerunner-pool
   labels: {}
   taints: {}
@@ -47,7 +47,7 @@ nodepools:
 - etcd: false
   controlplane: false
   worker: true
-  displayName: worker-nodes
+  # displayName: worker-nodes
   name: worker-dev-edgerunner-pool
   labels: {}
   taints: {}
