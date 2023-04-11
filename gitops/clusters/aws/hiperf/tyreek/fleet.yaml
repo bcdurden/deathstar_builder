@@ -1,0 +1,6 @@
+defaultNamespace: default
+helm:
+  chart: ttps://github.com/bcdurden/multicloud-rancher-demo/raw/main/charts/cluster-template.tar.gz
+  releaseName: cluster-template-hiperf-tyreek
+  valuesFiles:
+    - values.yaml
