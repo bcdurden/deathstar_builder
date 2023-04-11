@@ -25,13 +25,7 @@ spec:
   rkeConfig:
     machineGlobalConfig:
       cni: calico
-      disable-apiserver: false
-      disable-cloud-controller: false
-      disable-controller-manager: false
-      disable-etcd: false
       disable-kube-proxy: false
-      disable-network-policy: false
-      disable-scheduler: false
       etcd-expose-metrics: false
       profile: {{ .Values.profile }}
       kube-apiserver-arg: {{ .Values.kube_apiserver_arg | toRawJson }}
@@ -40,14 +34,6 @@ spec:
       kubelet-arg: {{ .Values.kubelet_arg | toRawJson }}
       write-kubeconfig-mode: {{ .Values.write_kubeconfig_mode }}
       use-service-account-credentials: {{ .Values.use_service_account_credentials }}
-    {{- if ne $.Values.cloudprovider "harvester" }}
-    machineSelectorConfig:
-    - config:
-        cloud-provider-name: ""
-        docker: false
-        protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
-        selinux: {{ .Values.selinux | default false }}
-    {{- end }}
     {{- if eq $.Values.cloudprovider "harvester" }}
     chartValues:
       harvester-cloud-provider:
@@ -59,29 +45,26 @@ spec:
         cloud-provider-name: harvester
         protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
         selinux: {{ .Values.selinux | default false }}
-    {{- end }}
-    {{- if eq $.Values.cloudprovider "vsphere" }}
+    {{- else if eq $.Values.cloudprovider "vsphere" }}
     chartValues:
+      rke2-calico: {}
       rancher-vsphere-cpi:
         vCenter:
           host: {{ .Values.vcenter.host }}
           username: {{ .Values.vcenter.username }}
           password: {{ .Values.vcenter.password }}
-          insecureFlag: {{ .Values.vcenter.skip_tls_verify }}
           labels:
             generate: false
-          port: 443
           datacenters: {{ .Values.vcenter.datacenters }}
-          credentialsSecret:
-            name: vsphere-cpi-sc
-            generate: true
       rancher-vsphere-csi:
+        asyncQueryVolume:
+          enabled: true
         csiController:
           csiResizer:
             enabled: true
-        csiMigration:
-          enabled: true
         improvedVolumeTopology:
+          enabled: true
+        onlineVolumeExtend:
           enabled: true
         triggerCsiFullsync:
           enabled: true
@@ -91,14 +74,19 @@ spec:
           username: {{ .Values.vcenter.username }}
           password: {{ .Values.vcenter.password }}
           insecureFlag: {{ .Values.vcenter.skip_tls_verify }}
-          configSecret:
-            name: vsphere-csi-secret
-            generate: true
-        storageClass:
-          enabled: true
-          allowVolumeExpansion: true
-          name: vsphere-csi-sc
-          isDefault: true
+    machineSelectorConfig:
+    - config:
+        cloud-provider-name: "rancher-vsphere"
+        docker: false
+        protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
+        selinux: {{ .Values.selinux | default false }}
+    {{- else }}
+    machineSelectorConfig:
+    - config:
+        cloud-provider-name: ""
+        docker: false
+        protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
+        selinux: {{ .Values.selinux | default false }}
     {{- end }}
     {{- if .Values.registries }}
     registries: 

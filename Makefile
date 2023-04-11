@@ -7,6 +7,7 @@ WORKLOAD_DIR := ${WORKING_DIR}/workloads
 GITOPS_DIR := ${WORKING_DIR}/gitops
 
 HARVESTER_CONTEXT := "deathstar"
+VSPHERE_NAME := "vsphere"
 BASE_URL := sienarfleet.systems
 GITEA_URL := git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
@@ -222,8 +223,9 @@ wildcard-cert: check-tools
 
 # gitops targets
 # this only works if harvester cluster has been imported
-_CLUSTER_NAME = $(shell kubectl get cluster deathstar -n fleet-default -o yaml | yq -e '.status.clusterName' | tr -d '\n' | base64)
-_SECRET_NAME = $(shell kubectl get secret -n cattle-global-data -o yaml | yq -e '.items[] | select(.data.harvestercredentialConfig-clusterId == '\"$(_CLUSTER_NAME)\"')' | yq -e .metadata.name)
+_HARVESTER_CLUSTER_NAME = $(shell kubectl get cluster $(HARVESTER_CONTEXT) -n fleet-default -o yaml | yq -e '.status.clusterName' | tr -d '\n' | base64)
+_HARVESTER_SECRET_NAME = $(shell kubectl get secret -n cattle-global-data -o yaml | yq -e '.items[] | select(.data.harvestercredentialConfig-clusterId == '\"$(_HARVESTER_CLUSTER_NAME)\"')' | yq -e .metadata.name)
+_VSPHERE_SECRET_NAME = $(shell kubectl get secret -n cattle-global-data -o yaml | yq -e '.items[] | select(.metadata.annotations."field.cattle.io/name" == '\"$(VSPHERE_NAME)\"')' | yq -e .metadata.name)
 workloads-check: check-tools
 	@printf "\n===> Synchronizing Workloads with Fleet (dry-run)\n";
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
@@ -232,7 +234,8 @@ workloads-check: check-tools
 workloads-yes: 
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
-	@kubectl get secret -n cattle-global-data $(HARVESTER_CONTEXT) || kubectl get secret -n cattle-global-data $(_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f - || true
+	@kubectl get secret -n cattle-global-data $(HARVESTER_CONTEXT) || kubectl get secret -n cattle-global-data $(_HARVESTER_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f -
+	@kubectl get secret -n cattle-global-data $(VSPHERE_NAME) || kubectl get secret -n cattle-global-data $(_VSPHERE_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(VSPHERE_NAME)' | kubectl apply -f -
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 
 workloads-destroy: workloads-delete

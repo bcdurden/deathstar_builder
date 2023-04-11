@@ -1,0 +1,176 @@
+cloudprovider: vsphere
+cloudCredentialSecretName: cattle-global-data:cc-lkxrj # vsphere
+cluster:
+  annotations: {}
+  labels:
+    environment: bigbang
+    cluster_name: delta
+    location: homelab
+  name: bigbang-delta
+kubernetesVersion: v1.24.9+rke2r2
+registries:
+  configs:
+    rgcrprod.azurecr.us:
+      authConfigSecretName: carbide-registry
+      caBundle: ''
+      insecureSkipVerify: false
+vcenter:
+  host: "10.0.0.5"
+  skip_tls_verify: true
+  datacenters: "Datacenter"
+  username: robot-account@vsphere.local
+  password: ^NotARealPassword1^
+
+monitoring:
+  enabled: false
+
+# STIG-compliance settings
+profile: cis-1.6
+selinux: true
+secrets_encryption: true
+protect_kernel_defaults: true
+write_kubeconfig_mode: "0640"
+use_service_account_credentials: true
+kube_apiserver_arg: 
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+- authorization-mode=RBAC,Node
+- anonymous-auth=false
+- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml
+- audit-log-mode=blocking-strict
+- audit-log-maxage=30
+kube_scheduler_arg:
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+kube_controller_manager_arg:
+- bind-address=127.0.0.1
+- use-service-account-credentials=true
+- tls-min-version=VersionTLS12
+- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+kubelet_arg:
+- protect-kernel-defaults=true
+- read-only-port=0
+- authorization-mode=Webhook
+- streaming-connection-idle-timeout=5m
+
+# Specify nodepool options. Can add multiple node groups, specify etcd, controlplane and worker roles.
+nodepools:
+- name: cp-bb
+  etcd: true
+  controlplane: true
+  worker: false
+
+  labels: {}
+  taints: {}
+  quantity: 1
+  paused: false
+
+  # vm template to clone (referenced in content-libraruy)
+  cloneFrom: "jammy-server-cloudimg-amd64"
+
+  # Filepath to a cloud-config yaml file to put into the ISO user-data
+  cloudConfig: |-
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
+    - systemctl restart systemd-sysctl
+
+  cpuCount: "4"
+  diskSize: "40000"
+  memorySize: "8192"
+  creationType: "library"
+
+  # If you choose to clone from a content library template specify the name of the library
+  contentLibrary: "cl"
+
+  # vSphere datacenter for virtual machine
+  datacenter: "/Datacenter"
+
+  # vSphere datastore for virtual machine
+  datastore: "/Datacenter/datastore/datastore1"
+
+  # vSphere folder. This folder must already exist in the datacenter
+  # folder: ""
+
+  # vSphere networks where the virtual machine will be attached
+  network: 
+  - "/Datacenter/network/rgs-network"
+
+  # vSphere resource pool
+  pool: "/Datacenter/host/Cluster/Resources"
+
+  # If using a non-B2D image you can specify the ssh port
+  sshPort: "22"
+
+  # If using a non-B2D image the uploaded keys will need chown'ed, defaults to staff e.g. docker:staff
+  sshUserGroup: staff
+
+  vcenterPort: 443
+- name: worker-bb
+  etcd: false
+  controlplane: false
+  worker: true
+
+  labels: {}
+  taints: {}
+  quantity: 3
+  paused: false
+
+  # If you choose creation type clone a name of what you want to clone is required
+  cloneFrom: "jammy-server-cloudimg-amd64"
+
+  # Filepath to a cloud-config yaml file to put into the ISO user-data
+  cloudConfig: |-
+    #cloud-config
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
+    runcmd:
+    - systemctl restart systemd-sysctl
+
+  cpuCount: "4"
+  memorySize: "16384"
+  diskSize: "40000"
+
+  # If you choose to clone from a content library template specify the name of the library
+  contentLibrary: "cl"
+
+  # 'Creation type when creating a new virtual machine. Supported values: vm, template, library, legacy'
+  creationType: "library"
+
+  # vSphere datacenter for virtual machine
+  datacenter: "/Datacenter"
+
+  # vSphere datastore for virtual machine
+  datastore: "/Datacenter/datastore/datastore1"
+
+  # vSphere folder for the docker VM. This folder must already exist in the datacenter
+  # folder: ""
+
+  # vSphere networks where the virtual machine will be attached
+  network: 
+  - "/Datacenter/network/rgs-network"
+
+  # vSphere resource pool for docker VM
+  pool: "/Datacenter/host/Cluster/Resources"
+
+  # If using a non-B2D image you can specify the ssh port
+  sshPort: "22"
+
+  # If using a non-B2D image the uploaded keys will need chown'ed, defaults to staff e.g. docker:staff
+  sshUserGroup: staff
+
+  vcenterPort: 443
