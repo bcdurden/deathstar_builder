@@ -1,0 +1,12 @@
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: vsphere-cluster-loader
+  namespace: fleet-local
+spec:
+  repo: https://github.com/bcdurden/deathstar_builder.git
+  branch: main  
+  targets:
+  - clusterName: local
+  paths:
+  - "./gitops/clusters/vsphere"
