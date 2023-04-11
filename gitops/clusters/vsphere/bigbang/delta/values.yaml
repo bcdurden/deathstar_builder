@@ -8,6 +8,7 @@ cluster:
     location: homelab
   name: bigbang-delta
 kubernetesVersion: v1.24.9+rke2r2
+system_default_registry: rgcrprod.azurecr.us
 registries:
   configs:
     rgcrprod.azurecr.us:

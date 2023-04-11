@@ -43,6 +43,9 @@ spec:
     - config:
         cloud-provider-config: {{ .Values.cloudProviderConfigSecretName }}
         cloud-provider-name: harvester
+        {{- if .Values.system_default_registry }}
+        system-default-registry: {{ .Values.system_default_registry }}
+        {{- end }}
         protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
         selinux: {{ .Values.selinux | default false }}
     {{- else if eq $.Values.cloudprovider "vsphere" }}
@@ -76,7 +79,10 @@ spec:
           insecureFlag: {{ .Values.vcenter.skip_tls_verify }}
     machineSelectorConfig:
     - config:
-        cloud-provider-name: "rancher-vsphere"
+        cloud-provider-name: "rancher-vsphere"       
+        {{- if .Values.system_default_registry }}
+        system-default-registry: {{ .Values.system_default_registry }}
+        {{- end }}
         docker: false
         protect-kernel-defaults: {{ .Values.protect_kernel_defaults | default false }}
         selinux: {{ .Values.selinux | default false }}
