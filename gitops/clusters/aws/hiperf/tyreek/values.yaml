@@ -3,10 +3,11 @@ cloudCredentialSecretName: cattle-global-data:cc-qb7r4 # aws-multicloud
 cluster:
   annotations: {}
   labels:
-    environment: prod
-    cluster_name: green
+    gpu: nvidia
+    environment: hiperf
+    cluster_name: tyreek
     location: aws
-  name: rke2-aws-prod-green
+  name: rke2-aws-hiperf-tyreek
 kubernetesVersion: v1.24.9+rke2r2
 system_default_registry: rgcrprod.azurecr.us
 monitoring:
@@ -20,43 +21,16 @@ registries:
 rke:
   localClusterAuthEndpoint:
     enabled: false
-profile: cis-1.6
-selinux: true
-secrets_encryption: true
-protect_kernel_defaults: true
-write_kubeconfig_mode: "0640"
-use_service_account_credentials: true
-kube_apiserver_arg: 
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-- authorization-mode=RBAC,Node
-- anonymous-auth=false
-- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml
-- audit-log-mode=blocking-strict
-- audit-log-maxage=30
-kube_scheduler_arg:
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-kube_controller_manager_arg:
-- bind-address=127.0.0.1
-- use-service-account-credentials=true
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-kubelet_arg:
-- protect-kernel-defaults=true
-- read-only-port=0
-- authorization-mode=Webhook
-- streaming-connection-idle-timeout=5m
 nodepools:
 - etcd: true
   controlplane: true
   worker: false
-  # displayName: control-plane-a
+  displayName: control-plane-a
   labels: {}
   taints: {}
   quantity: 1
   paused: false
-  name: control-plane-prod-green-a
+  name: control-plane-hiperf-tyreek-pool-a
   ami: ami-0a695f0d95cefc163
   deviceName: /dev/sda1
   encryptEbsVolume: false
@@ -80,7 +54,7 @@ nodepools:
   requestSpotInstance: false
   tags: Owner,brian,KeepRunning,true
   retries: 5
-  rootSize: 20
+  rootSize: 60
   sshUser: ubuntu
   volumeType: gp2
   vpcId: vpc-06cec89a153c4d640
@@ -88,17 +62,7 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
     runcmd:
-    - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
-    - systemctl restart systemd-sysctl
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     - apt update
@@ -109,19 +73,19 @@ nodepools:
 - etcd: false
   controlplane: false
   worker: true
-  # displayName: worker-a
+  displayName: worker-a
   labels: {}
   taints: {}
-  quantity: 4
+  quantity: 1
   paused: false
-  name: worker-prod-green-a
+  name: worker-hiperf-tyreek-pool-a
   ami: ami-0a695f0d95cefc163
   deviceName: /dev/sda1
   encryptEbsVolume: false
   endpoint: ""
   iamInstanceProfile: RancherIAMCloudProvider
   insecureTransport: false
-  instanceType: c5a.xlarge
+  instanceType: g4dn.2xlarge
   region: us-east-2
   createSecurityGroup: true
   securityGroups: []
@@ -136,7 +100,7 @@ nodepools:
   - "443"
   privateAddressOnly: false
   requestSpotInstance: false
-  tags: Owner,brian,KeepRunning,true
+  tags: owner,brian,KeepRunning,true
   retries: 5
   rootSize: 120
   sshUser: ubuntu
@@ -146,39 +110,35 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
+    package_update: true
+    packages:
+    - nvidia-driver-520
     runcmd:
-    - systemctl restart systemd-sysctl
+    runcmd:
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     - apt update
     - apt install -y tailscale
     - systemctl enable --now tailscaled
     - tailscale up --authkey= --accept-routes
+    - reboot
   zone: a
 - etcd: false
   controlplane: false
   worker: true
-  # displayName: worker-b
+  displayName: worker-b
   labels: {}
   taints: {}
-  quantity: 3
+  quantity: 1
   paused: false
-  name: worker-prod-green-b
+  name: worker-hiperf-tyreek-pool-b
   ami: ami-0a695f0d95cefc163
   deviceName: /dev/sda1
   encryptEbsVolume: false
   endpoint: ""
   iamInstanceProfile: RancherIAMCloudProvider
   insecureTransport: false
-  instanceType: c5a.xlarge
+  instanceType: g4dn.2xlarge
   region: us-east-2
   createSecurityGroup: true
   securityGroups: []
@@ -193,7 +153,7 @@ nodepools:
   - "443"
   privateAddressOnly: false
   requestSpotInstance: false
-  tags: Owner,brian,KeepRunning,true
+  tags: owner,brian,KeepRunning,true
   retries: 5
   rootSize: 120
   sshUser: ubuntu
@@ -203,39 +163,35 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
+    package_update: true
+    packages:
+    - nvidia-driver-520
     runcmd:
-    - systemctl restart systemd-sysctl
+    runcmd:
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     - apt update
     - apt install -y tailscale
     - systemctl enable --now tailscaled
     - tailscale up --authkey= --accept-routes
+    - reboot
   zone: b
 - etcd: false
   controlplane: false
   worker: true
-  # displayName: worker-c
+  displayName: worker-c
   labels: {}
   taints: {}
-  quantity: 3
+  quantity: 1
   paused: false
-  name: worker-prod-green-c
+  name: worker-hiperf-tyreek-pool-c
   ami: ami-0a695f0d95cefc163
   deviceName: /dev/sda1
   encryptEbsVolume: false
   endpoint: ""
   iamInstanceProfile: RancherIAMCloudProvider
   insecureTransport: false
-  instanceType: c5a.xlarge
+  instanceType: g4dn.2xlarge
   region: us-east-2
   createSecurityGroup: true
   securityGroups: []
@@ -250,7 +206,7 @@ nodepools:
   - "443"
   privateAddressOnly: false
   requestSpotInstance: false
-  tags: Owner,brian,KeepRunning,true
+  tags: owner,brian,KeepRunning,true
   retries: 5
   rootSize: 120
   sshUser: ubuntu
@@ -260,20 +216,16 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
+    package_update: true
+    packages:
+    - nvidia-driver-520
     runcmd:
-    - systemctl restart systemd-sysctl
+    runcmd:
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     - apt update
     - apt install -y tailscale
     - systemctl enable --now tailscaled
     - tailscale up --authkey= --accept-routes
+    - reboot
   zone: c
