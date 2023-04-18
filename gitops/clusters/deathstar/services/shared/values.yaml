@@ -81,7 +81,7 @@ nodepools:
         kernel.panic_on_oops=1
     runcmd:
     - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
-    - systemctl restart systemd-sysctl
+  # - systemctl restart systemd-sysctl
 - etcd: false
   controlplane: false
   worker: true
@@ -109,5 +109,5 @@ nodepools:
         vm.overcommit_memory=1
         kernel.panic=10
         kernel.panic_on_oops=1
-    runcmd:
-    - systemctl restart systemd-sysctl
+  #   runcmd:
+  #   - systemctl restart systemd-sysctl
