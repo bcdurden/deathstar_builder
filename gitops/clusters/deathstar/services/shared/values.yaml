@@ -81,7 +81,6 @@ nodepools:
         kernel.panic_on_oops=1
     runcmd:
     - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
-    - sleep 10
     - systemctl restart systemd-sysctl
 - etcd: false
   controlplane: false
@@ -111,5 +110,4 @@ nodepools:
         kernel.panic=10
         kernel.panic_on_oops=1
     runcmd:
-    - sleep 10-
     - systemctl restart systemd-sysctl
