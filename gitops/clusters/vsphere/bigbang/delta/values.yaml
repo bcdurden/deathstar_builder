@@ -8,6 +8,7 @@ cluster:
     location: homelab
   name: bigbang-delta
 kubernetesVersion: v1.24.9+rke2r2
+cni: canal
 system_default_registry: rgcrprod.azurecr.us
 registries:
   configs:
@@ -72,17 +73,10 @@ nodepools:
   # Filepath to a cloud-config yaml file to put into the ISO user-data
   cloudConfig: |-
     #cloud-config
-    bootcmd:
-    - systemctl restart systemd-sysctl
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
     runcmd:
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
+    - systemctl restart systemd-sysctl
     - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
 
   cpuCount: "4"
@@ -133,16 +127,10 @@ nodepools:
   # Filepath to a cloud-config yaml file to put into the ISO user-data
   cloudConfig: |-
     #cloud-config
-    bootcmd:
+    runcmd:
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
 
   cpuCount: "4"
   memorySize: "16384"
