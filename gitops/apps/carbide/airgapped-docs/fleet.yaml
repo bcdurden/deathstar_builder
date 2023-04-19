@@ -4,3 +4,23 @@ helm:
   chart: airgapped-docs
   version: 0.1.44
   releaseName: airgapped-docs
+
+targetCustomizations:
+- name: vsphere
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: homelab
+- name: aws
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: aws
