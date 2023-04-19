@@ -4,8 +4,6 @@ helm:
   chart: kubewarden-controller
   version: 1.5.0
   releaseName: kubewarden-controller
-  valuesFiles:
-    - values.yaml
 
 targetCustomizations:
 - name: vsphere

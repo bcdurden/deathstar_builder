@@ -4,8 +4,6 @@ helm:
   chart: kubewarden-defaults
   version: 1.6.0
   releaseName: kubewarden-defaults
-  valuesFiles:
-    - values.yaml
 
 targetCustomizations:
 - name: vsphere
