@@ -15,6 +15,9 @@ spec:
   - clusterSelector:
       matchLabels:
         environment: services
+  - clusterSelector:
+      matchLabels:
+        environment: bigbang
 
   paths:
   - "./gitops/apps/security_controls"

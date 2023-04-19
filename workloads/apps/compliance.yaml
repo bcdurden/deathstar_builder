@@ -12,6 +12,12 @@ spec:
   - clusterSelector:
       matchLabels:
         environment: services
+  - clusterSelector:
+      matchLabels:
+        environment: prod
+  - clusterSelector:
+      matchLabels:
+        location: homelab
 
   paths:
   - "./gitops/apps/compliance"
