@@ -27,3 +27,23 @@ diff:
 #     operations:
 #     - {"op":"remove", "path":"/webhooks/0/failurePolicy"}
 #     - {"op":"remove", "path":"/webhooks/0/rules/0/scope"}
+
+targetCustomizations:
+- name: vsphere
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: homelab
+- name: aws
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: aws
