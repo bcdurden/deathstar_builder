@@ -1,5 +1,5 @@
 cloudprovider: amazonec2
-cloudCredentialSecretName: cattle-global-data:cc-qb7r4 # aws-multicloud
+cloudCredentialSecretName: cattle-global-data:cc-5frjt # aws-multicloud
 cluster:
   annotations: {}
   labels:
@@ -88,17 +88,11 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
     runcmd:
-    - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
+    - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     - apt update
@@ -146,15 +140,9 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
     runcmd:
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
@@ -203,15 +191,9 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
     runcmd:
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
@@ -260,15 +242,9 @@ nodepools:
   usePrivateAddress: false
   userdata: |
     #cloud-config
-    write_files:
-    - path: /etc/sysctl.d/60-rke2-cis.conf
-      owner: root
-      content: |
-        vm.panic_on_oom=0
-        vm.overcommit_memory=1
-        kernel.panic=10
-        kernel.panic_on_oops=1
-    runcmd:
+    runcmd:    
+    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
+    - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     - curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
