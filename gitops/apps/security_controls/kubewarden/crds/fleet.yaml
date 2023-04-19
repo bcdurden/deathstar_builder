@@ -1,0 +1,6 @@
+defaultNamespace: kubewarden
+helm:
+  repo: https://harbor.sienarfleet.systems/chartrepo/kubewarden
+  chart: kubewarden-crds
+  version: 1.3.0
+  releaseName: kubewarden-crds

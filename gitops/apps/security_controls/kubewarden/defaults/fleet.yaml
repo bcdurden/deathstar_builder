@@ -1,0 +1,28 @@
+defaultNamespace: kubewarden
+helm:
+  repo: https://harbor.sienarfleet.systems/chartrepo/kubewarden
+  chart: kubewarden-defaults
+  version: 1.6.0
+  releaseName: kubewarden-defaults
+  valuesFiles:
+    - values.yaml
+
+targetCustomizations:
+- name: vsphere
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: homelab
+- name: aws
+  helm:
+    values:
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
+  clusterSelector:
+    matchLabels:
+      location: aws
