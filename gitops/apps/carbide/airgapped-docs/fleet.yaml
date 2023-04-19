@@ -4,6 +4,8 @@ helm:
   chart: airgapped-docs
   version: 0.1.44
   releaseName: airgapped-docs
+  valuesFiles:
+    - values.yaml
 
 targetCustomizations:
 - name: vsphere
