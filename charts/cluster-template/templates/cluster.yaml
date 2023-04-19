@@ -24,7 +24,7 @@ spec:
   # rancherValues: {}
   rkeConfig:
     machineGlobalConfig:
-      cni: calico
+      cni: {{ .Values.cni | default "canal" }}
       disable-kube-proxy: false
       etcd-expose-metrics: false
       profile: {{ .Values.profile }}
