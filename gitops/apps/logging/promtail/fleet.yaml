@@ -47,30 +47,13 @@ targetCustomizations:
     matchLabels:
       environment: sandbox
       cluster_name: alpha
-- name: prod-blue
+- name: aws
   helm:
     values:
-      promtail:
-        config:
-          snippets:
-            pipelineStages:
-            - static_labels:
-                cluster: prod-blue
+      global:
+        cattle:
+          systemDefaultRegistry: rgcrprod.azurecr.us
   clusterSelector:
     matchLabels:
-      environment: prod
-      cluster_name: blue
-- name: prod-green
-  helm:
-    values:
-      promtail:
-        config:
-          snippets:
-            pipelineStages:
-            - static_labels:
-                cluster: prod-green
-  clusterSelector:
-    matchLabels:
-      environment: prod
-      cluster_name: green
+      location: aws
 
