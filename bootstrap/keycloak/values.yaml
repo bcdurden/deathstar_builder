@@ -1,0 +1,283 @@
+affinity: {}
+args: []
+auth:
+  adminPassword: '$NotARealPassword1$'
+  adminUser: admin
+  existingSecret: ''
+  passwordSecretKey: ''
+autoscaling:
+  enabled: false
+  maxReplicas: 11
+  minReplicas: 1
+  targetCPU: ''
+  targetMemory: ''
+cache:
+  enabled: true
+  stackFile: ''
+  stackName: kubernetes
+clusterDomain: cluster.local
+command: []
+commonAnnotations: {}
+commonLabels: {}
+configuration: ''
+containerPorts:
+  http: 8080
+  https: 8443
+  infinispan: 7800
+containerSecurityContext:
+  enabled: true
+  runAsNonRoot: true
+  runAsUser: 1001
+customLivenessProbe: {}
+customReadinessProbe: {}
+customStartupProbe: {}
+diagnosticMode:
+  args:
+    - infinity
+  command:
+    - sleep
+  enabled: false
+enableServiceLinks: true
+existingConfigmap: ''
+externalDatabase:
+  database: bitnami_keycloak
+  existingSecret: ''
+  existingSecretPasswordKey: ''
+  host: ''
+  password: ''
+  port: 5432
+  user: bn_keycloak
+extraContainerPorts: []
+extraDeploy: []
+extraEnvVars: []
+extraEnvVarsCM: ''
+extraEnvVarsSecret: ''
+extraStartupArgs: ''
+extraVolumeMounts: []
+extraVolumes: []
+fullnameOverride: ''
+global:
+  imagePullSecrets: []
+  imageRegistry: ''
+  storageClass: ''
+hostAliases: []
+httpRelativePath: /
+image:
+  debug: false
+  digest: ''
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  registry: docker.io
+  repository: bitnami/keycloak
+  tag: 21.0.2-debian-11-r8
+ingress:
+  annotations: {}
+  apiVersion: ''
+  enabled: true
+  extraHosts: []
+  extraPaths: []
+  extraRules: []
+  extraTls: []
+  hostname: keycloak.sienarfleet.systems
+  ingressClassName: ''
+  path: '{{ .Values.httpRelativePath }}'
+  pathType: ImplementationSpecific
+  secrets: []
+  selfSigned: false
+  servicePort: http
+  tls: true
+initContainers: []
+initdbScripts: {}
+initdbScriptsConfigMap: ''
+keycloakConfigCli:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade,post-rollback
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+    helm.sh/hook-weight: '5'
+  args: []
+  backoffLimit: 1
+  cleanupAfterFinished:
+    enabled: false
+    seconds: 600
+  command: []
+  configuration: {}
+  containerSecurityContext:
+    enabled: true
+    runAsNonRoot: true
+    runAsUser: 1001
+  enabled: false
+  existingConfigmap: ''
+  extraEnvVars: []
+  extraEnvVarsCM: ''
+  extraEnvVarsSecret: ''
+  extraVolumeMounts: []
+  extraVolumes: []
+  hostAliases: []
+  image:
+    digest: ''
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    registry: docker.io
+    repository: bitnami/keycloak-config-cli
+    tag: 5.6.1-debian-11-r14
+  initContainers: []
+  nodeSelector: {}
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+  podTolerations: []
+  resources:
+    limits: {}
+    requests: {}
+  sidecars: []
+kubeVersion: ''
+lifecycleHooks: {}
+livenessProbe:
+  enabled: true
+  failureThreshold: 3
+  initialDelaySeconds: 300
+  periodSeconds: 1
+  successThreshold: 1
+  timeoutSeconds: 5
+logging:
+  level: INFO
+  output: default
+metrics:
+  enabled: false
+  prometheusRule:
+    enabled: false
+    groups: []
+    labels: {}
+    namespace: ''
+  service:
+    annotations:
+      prometheus.io/port: '{{ .Values.metrics.service.ports.http }}'
+      prometheus.io/scrape: 'true'
+    ports:
+      http: 8080
+  serviceMonitor:
+    enabled: false
+    endpoints:
+      - path: '{{ include "keycloak.httpPath" . }}metrics'
+      - path: '{{ include "keycloak.httpPath" . }}realms/master/metrics'
+    honorLabels: false
+    interval: 30s
+    jobLabel: ''
+    labels: {}
+    metricRelabelings: []
+    namespace: ''
+    path: ''
+    port: http
+    relabelings: []
+    scrapeTimeout: ''
+    selector: {}
+nameOverride: ''
+namespaceOverride: ''
+networkPolicy:
+  additionalRules: {}
+  allowExternal: true
+  enabled: false
+nodeAffinityPreset:
+  key: ''
+  type: ''
+  values: []
+nodeSelector: {}
+pdb:
+  create: false
+  maxUnavailable: ''
+  minAvailable: 1
+podAffinityPreset: ''
+podAnnotations: {}
+podAntiAffinityPreset: soft
+podLabels: {}
+podManagementPolicy: Parallel
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+postgresql:
+  architecture: standalone
+  auth:
+    database: bitnami_keycloak
+    existingSecret: ''
+    password: ''
+    postgresPassword: ''
+    username: bn_keycloak
+  enabled: true
+priorityClassName: ''
+production: false
+proxy: passthrough
+rbac:
+  create: false
+  rules: []
+readinessProbe:
+  enabled: true
+  failureThreshold: 3
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+replicaCount: 1
+resources:
+  limits: {}
+  requests: {}
+schedulerName: ''
+service:
+  annotations: {}
+  clusterIP: ''
+  externalTrafficPolicy: Cluster
+  extraHeadlessPorts: []
+  extraPorts: []
+  headless:
+    annotations: {}
+    extraPorts: []
+  http:
+    enabled: true
+  loadBalancerIP: ''
+  loadBalancerSourceRanges: []
+  nodePorts:
+    http: ''
+    https: ''
+  ports:
+    http: 80
+    https: 443
+  sessionAffinity: None
+  sessionAffinityConfig: {}
+  type: LoadBalancer
+serviceAccount:
+  annotations: {}
+  automountServiceAccountToken: true
+  create: true
+  extraLabels: {}
+  name: ''
+sidecars: []
+spi:
+  existingSecret: ''
+  hostnameVerificationPolicy: ''
+  passwordsSecret: ''
+  truststoreFilename: keycloak-spi.truststore.jks
+  truststorePassword: ''
+startupProbe:
+  enabled: false
+  failureThreshold: 60
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 1
+terminationGracePeriodSeconds: ''
+tls:
+  autoGenerated: false
+  enabled: false
+  existingSecret: ''
+  keystoreFilename: keycloak.keystore.jks
+  keystorePassword: ''
+  passwordsSecret: ''
+  truststoreFilename: keycloak.truststore.jks
+  truststorePassword: ''
+  usePem: false
+tolerations: []
+topologySpreadConstraints: []
+updateStrategy:
+  rollingUpdate: {}
+  type: RollingUpdate

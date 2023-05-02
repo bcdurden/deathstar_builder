@@ -1,6 +1,6 @@
 module "rke2-hardened" {
   source  = "bcdurden/rke2-hardened/harvester"
-  version = "0.0.3"
+  version = "0.0.5"
   
   main_cluster_prefix = var.main_cluster_prefix
   worker_prefix = var.worker_prefix
@@ -18,4 +18,18 @@ module "rke2-hardened" {
   carbide_username = var.carbide_username
   carbide_password = var.carbide_password
   registry_url = var.registry_url
+  cp_network_data = [
+    <<EOT
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+      dhcp4: no
+      addresses: [10.10.5.20/24]
+      gateway4: 10.10.5.1
+      nameservers:
+        addresses: [10.10.0.1]
+    EOT
+    ]
 }

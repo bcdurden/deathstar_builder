@@ -47,53 +47,6 @@ tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
 # Clean up working directory
 rm -rf $DEST_DIRECTORY
 
-## longhorn
-DEST_DIRECTORY=/tmp/longhorn-images
-DEST_TAR=/tmp/longhorn-images.tar.gz 
-
-LONGHORN_RELEASE=1.3.1
-
-if [[ -d "$DEST_DIRECTORY" ]]; then
-    echo "ERROR: Directory '$DEST_DIRECTORY' exists."
-    echo "Change or delete it before running."
-    exit 1
-fi
-
-if [[ -d "$DEST_TAR" ]]; then
-    echo "ERROR: Directory '$DEST_TAR' exists."
-    echo "Change or delete it before running."
-    exit 1
-fi
-mkdir -p "$DEST_DIRECTORY"
-
-# Add harbor repo
-helm repo add longhorn https://charts.longhorn.io
-helm repo update 
-
-# Grab the list of images and download them (requires docker, grep, sed, and awk)
-for image in $(helm template longhorn/longhorn --version ${LONGHORN_RELEASE} | grep 'longhornio/' | sed -e 's/^[ \t]*//' | sed 's/"//g' | sort --unique | awk '{ print $2 }'); do
-    source_image=$image
-    dest_image=$(echo $image | sed "s|longhornio/|TARGET_REGISTRY/longhornio/|g")
-
-    # Create manifest to use during load
-    img_dir=$(mktemp -d $DEST_DIRECTORY/longhorn-image.XXXXXXX)
-    img_id_num=${img_dir: -22}
-    echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
-
-    # Save image locally
-    printf "Exporting $source_image\n"
-    cosign save --dir "$img_dir" $source_image
-    if [ $? != 0 ]; then
-      cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
-    fi
-done
-
-# Compress directory
-tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
-
-# Clean up working directory
-rm -rf $DEST_DIRECTORY
-
 ## loki
 DEST_DIRECTORY=/tmp/loki-images
 DEST_TAR=/tmp/loki-images.tar.gz 
@@ -188,6 +141,48 @@ for image in $(helm template hashicorp/vault --version ${VAULT_RELEASE} | grep '
     # Create manifest to use during load
     img_dir=$(mktemp -d $DEST_DIRECTORY/hashicorp-image.XXXXXXX)
     img_id_num=${img_dir: -24}
+    echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
+
+    # Save image locally
+    printf "Exporting $source_image\n"
+    cosign save --dir "$img_dir" $source_image
+    if [ $? != 0 ]; then
+      cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
+    fi
+done
+
+# Compress directory
+tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
+
+# Clean up working directory
+rm -rf $DEST_DIRECTORY
+
+# keycloak
+DEST_DIRECTORY=/tmp/keycloak-images
+DEST_TAR=/tmp/keycloak-images.tar.gz 
+
+KEYCLOAK_RELEASE=21.1.1
+
+if [[ -d "$DEST_DIRECTORY" ]]; then
+    echo "ERROR: Directory '$DEST_DIRECTORY' exists."
+    echo "Change or delete it before running."
+    exit 1
+fi
+
+if [[ -d "$DEST_TAR" ]]; then
+    echo "ERROR: Directory '$DEST_TAR' exists."
+    echo "Change or delete it before running."
+    exit 1
+fi
+mkdir -p "$DEST_DIRECTORY"
+
+for image in $(wget -q -O - https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/$KEYCLOAK_RELEASE/kubernetes-examples/keycloak.yaml | grep 'quay.io/' | sed -e 's/^[ \t]*//' | sed 's/"//g' | sort --unique | awk '{ print $2 }'); do
+    source_image=$image
+    dest_image=$(echo $image | sed "s|quay.io/keycloak|TARGET_REGISTRY/keycloak|g")
+
+    # Create manifest to use during load
+    img_dir=$(mktemp -d $DEST_DIRECTORY/keycloak-image.XXXXXXX)
+    img_id_num=${img_dir: -23}
     echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
 
     # Save image locally
