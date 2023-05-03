@@ -23,7 +23,7 @@ resource "harvester_virtualmachine" "harbor" {
       type        = "ssh"
       host        = self.network_interface[index(self.network_interface.*.name, "default")].ip_address
       user        = "ubuntu"
-      private_key = tls_private_key.rsa_key.public_key_openssh
+      private_key = tls_private_key.rsa_key.private_key_openssh
     }
   }
 
