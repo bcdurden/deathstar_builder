@@ -1,6 +1,6 @@
 module "rke2-hardened" {
   source  = "bcdurden/rke2-hardened/harvester"
-  version = "0.0.5"
+  version = "0.1.0"
   
   main_cluster_prefix = var.main_cluster_prefix
   worker_prefix = var.worker_prefix

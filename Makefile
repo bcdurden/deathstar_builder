@@ -89,6 +89,11 @@ certs-import: check-tools
 	@kubectl apply -f harbor_cert.yaml
 	@kubectl apply -f gitea_cert.yaml
 
+keycloak: check-tools
+	@printf "\n===>Deploying Keycloak\n";
+	@kubectx ${HARVESTER_CONTEXT}
+	@helm upgrade --install keycloak -n keycloak --create-namespace -f ${BOOTSTRAP_DIR}/keycloak/values.yaml ${BOOTSTRAP_DIR}/keycloak/keycloak-14.5.0.tgz
+
 # registry targets
 registry: check-tools
 	@printf "\n===> Installing Registry\n";
