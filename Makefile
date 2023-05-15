@@ -93,17 +93,19 @@ keycloak: check-tools
 	@printf "\n===>Deploying Keycloak\n";
 	@kubectx ${HARVESTER_CONTEXT}
 	@helm upgrade --install keycloak -n keycloak --create-namespace -f ${BOOTSTRAP_DIR}/keycloak/values.yaml ${BOOTSTRAP_DIR}/keycloak/keycloak-14.5.0.tgz
+	kubectl get secret wildcard-prod-certificate -o json | jq 'del(.metadata["namespace","creationTimestamp","resourceVersion","selfLink","uid"])' | kubectl apply --namespace=keycloak -f -
+	kubectl patch ingress keycloak -n keycloak -p '{"spec":{"tls":[{"hosts":["keycloak.sienarfleet.systems"],"secretName":"wildcard-prod-certificate"}]}}'
 
-# registry targets
-registry: check-tools
-	@printf "\n===> Installing Registry\n";
-	@kubectx ${HARVESTER_CONTEXT}
-	@helm upgrade --install harbor ${BOOTSTRAP_DIR}/harbor/harbor-1.9.3.tgz \
-	--version 1.9.3 -n harbor -f ${BOOTSTRAP_DIR}/harbor/values.yaml --create-namespace
-registry-delete: check-tools
-	@printf "\n===> Deleting Registry\n";
-	@kubectx ${HARVESTER_CONTEXT}
-	@helm delete harbor -n harbor
+# # registry targets
+# registry: check-tools
+# 	@printf "\n===> Installing Registry\n";
+# 	@kubectx ${HARVESTER_CONTEXT}
+# 	@helm upgrade --install harbor ${BOOTSTRAP_DIR}/harbor/harbor-1.9.3.tgz \
+# 	--version 1.9.3 -n harbor -f ${BOOTSTRAP_DIR}/harbor/values.yaml --create-namespace
+# registry-delete: check-tools
+# 	@printf "\n===> Deleting Registry\n";
+# 	@kubectx ${HARVESTER_CONTEXT}
+# 	@helm delete harbor -n harbor
 
 # airgap targets
 pull-rancher: check-tools
