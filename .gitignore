@@ -5,3 +5,4 @@ rancher_cert.yaml
 harbor.key
 jumpbox.key
 *.tfvars
+*.tar

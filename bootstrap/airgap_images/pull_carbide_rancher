@@ -10,6 +10,7 @@ DEST_TAR=/tmp/cert-manager-images.tar.gz  # Change this to the location you want
 
 # Cert Manager Chart Version
 CERT_MANAGER_RELEASE=v1.10.2
+RANCHER_RELEASE="${3:-"2.7.5"}"
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -54,14 +55,9 @@ tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
 # Clean up working directory
 rm -rf $DEST_DIRECTORY
 
-
-
 # Working directories & TAR
 DEST_DIRECTORY=/tmp/rancher-images
 DEST_TAR=/tmp/rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
-
-# Rancher Version
-RANCHER_RELEASE=v2.7.1
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -78,7 +74,7 @@ fi
 cosign login -u $SOURCE_REGISTRY_USER -p $SOURCE_REGISTRY_PASS $SOURCE_REGISTRY
 mkdir -p "$DEST_DIRECTORY"
 
-RANCHER_IMAGES=$(curl --silent -L https://github.com/rancher/rancher/releases/download/$RANCHER_RELEASE/rancher-images.txt)
+RANCHER_IMAGES=$(curl --silent -L https://github.com/rancher/rancher/releases/download/v$RANCHER_RELEASE/rancher-images.txt)
 for image in $RANCHER_IMAGES; do
     source_image="$SOURCE_REGISTRY/$image"
     dest_image="TARGET_REGISTRY/$image"
@@ -106,7 +102,7 @@ rm -rf $DEST_DIRECTORY
 DEST_DIRECTORY=/tmp/carbide-rancher-images
 DEST_TAR=/tmp/carbide-rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
 
-CARBIDE_VERSION=0.1.0
+CARBIDE_RELEASE="${4:-"0.1.1"}"
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."

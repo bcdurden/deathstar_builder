@@ -1,0 +1,44 @@
+#!/bin/bash
+
+echo "Grabbing Charts"
+
+# cert-manager chart
+CERT_MANAGER_REPO=https://charts.jetstack.io
+CERT_MANAGER_VERSION="v1.10.2"
+helm repo add jetstack $CERT_MANAGER_REPO
+helm pull jetstack/cert-manager --version $CERT_MANAGER_VERSION
+
+# carbide charts
+CARBIDE_HELM_REPO="https://rancherfederal.github.io/carbide-charts"
+STIGATRION_UI_VERSION="0.1.21"
+STIGATRON_VERSION="0.1.46"
+AIRGAP_DOC_VERSION="0.1.44"
+HEIMDALL_VERSION="0.1.44"
+RANCHER_VERSION="2.7.5"
+
+helm repo add carbide-charts $CARBIDE_HELM_REPO
+helm repo update
+
+helm pull carbide-charts/stigatron-ui --version $STIGATRION_UI_VERSION
+helm pull carbide-charts/stigatron --version $STIGATRION_VERSION
+helm pull carbide-charts/airgaped-docs --version $AIRGAP_DOC_VERSION
+helm pull carbide-charts/heimdall2 --version $HEIMDALL_VERSION
+helm pull carbide-charts/rancher --version $RANCHER_VERSION
+
+# Harbor
+HARBOR_VERSION="1.9.3"
+HARBOR_REPO=https://helm.goharbor.io
+helm repo add harbor $HARBOR_REPO
+helm repo update 
+
+helm pull harbor/harbor --version $HARBOR_VERSION
+
+# Hashicorp
+CONSUL_VERISON="0.39.0"
+VAULT_VERISON="0.22.0"
+
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update 
+
+helm pull hashicorp/consul --version $CONSUL_VERISON
+helm pull hashicorp/vault --version $VAULT_VERISON

@@ -38,7 +38,7 @@ resource "kubernetes_secret" "harbor_config" {
         permissions: '0600'
       - path: /home/ubuntu/harbor/harbor.yml
         owner: root
-        permissions: '0600'
+        permissions: '0660'
         content: |
           # Configuration file of Harbor
           # The IP address or hostname to access admin UI and registry service.
@@ -65,12 +65,12 @@ resource "kubernetes_secret" "harbor_config" {
           # The initial password of Harbor admin
           # It only works in first time to install harbor
           # Remember Change the admin password from UI after launching Harbor.
-          harbor_admin_password: ${random_password.harbor_admin_password.result}
+          harbor_admin_password: "${random_password.harbor_admin_password.result}"
 
           # Harbor DB configuration
           database:
             # The password for the root user of Harbor DB. Change this before any production use.
-            password: ${random_password.database_password.result}
+            password: "${random_password.database_password.result}"
             # The maximum number of connections in the idle connection pool. If it <=0, no idle connections are retained.
             max_idle_conns: 100
             # The maximum number of open connections to the database. If it <= 0, then there is no limit on the number of open connections.

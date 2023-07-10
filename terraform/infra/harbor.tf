@@ -27,7 +27,7 @@ resource "harvester_virtualmachine" "harbor" {
     }
   }
 
-  cpu    = 4
+  cpu    = 2
   memory = "8Gi"
 
   run_strategy = "RerunOnFailure"

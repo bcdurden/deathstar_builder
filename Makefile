@@ -117,7 +117,7 @@ pull-misc: check-tools
 	@${BOOTSTRAP_DIR}/airgap_images/pull_misc
 push-images: check-tools
 	@printf "\n===>Pushing Images to Harbor\n";
-	@${BOOTSTRAP_DIR}/airgap_images/push_carbide $(REGISTRY_URL) $(REGISTRY_USER) '$(REGISTRY_PASSWORD)' $(IMAGES_FILE)
+	${BOOTSTRAP_DIR}/airgap_images/push_carbide $(REGISTRY_URL) $(REGISTRY_USER) '$(REGISTRY_PASSWORD)' $(IMAGES_FILE)
 
 # git targets
 git: check-tools
@@ -147,6 +147,8 @@ infra: check-tools
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
 	@kubectl create ns prod || true
+	@printf "\nGetting Harbor admin password:\n";
+	@$(MAKE) _terraform-value COMPONENT=infra FIELD=harbor_admin_password
 
 jumpbox: check-tools
 	@printf "\n====> Terraforming Jumpbox\n";
@@ -196,7 +198,7 @@ rancher-bootstrap:
 	@curl -sk https://${RANCHER_URL}/v1/catalog.cattle.io.clusterrepos/rancher-charts?action=install -H 'content-type: application/json' -H "Authorization: Bearer $$(curl -sk -X POST https://${RANCHER_URL}/v3-public/localProviders/local?action=login -H 'content-type: application/json' -d '{"username":"admin","password":"${RANDOM_PASSWORD}"}' | jq -r '.token')" -d '{"charts":[{"chartName":"ui-plugin-operator","version":"101.0.0+up0.1.0","releaseName":"ui-plugin-operator","annotations":{"catalog.cattle.io/ui-source-repo-type":"cluster","catalog.cattle.io/ui-source-repo":"rancher-charts"}}],"wait":true,"namespace":"cattle-ui-plugin-system"}'
 	@kubectl create ns carbide-stigatron-system --dry-run=client -o yaml | kubectl apply -f -
 	@sleep 10
-	@helm upgrade --install -n carbide-stigatron-system --create-namespace stigatron-ui --set global.cattle.systemDefaultRegistry=$(REGISTRY_URL) $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.20.tgz
+	@helm upgrade --install -n carbide-stigatron-system --create-namespace stigatron-ui --no-hooks --set global.cattle.systemDefaultRegistry=$(REGISTRY_URL) $(BOOTSTRAP_DIR)/rancher/stigatron-ui-0.1.20.tgz
 
 rancher-delete: rancher-destroy
 rancher-destroy: check-tools
@@ -264,7 +266,6 @@ carbide-license: check-tools
 # terraform sub-targets (don't use directly)
 _terraform: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
-	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) init
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) apply
 _terraform-init: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
@@ -274,7 +275,7 @@ _terraform-apply: check-tools
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) apply
 _terraform-value: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
-	@terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) output -json | jq -r '$(FIELD)'
+	@terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) output -json | jq -r .$(FIELD).value
 _terraform-destroy: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) destroy
