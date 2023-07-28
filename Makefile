@@ -119,6 +119,17 @@ push-images: check-tools
 	@printf "\n===>Pushing Images to Harbor\n";
 	${BOOTSTRAP_DIR}/airgap_images/push_carbide $(REGISTRY_URL) $(REGISTRY_USER) '$(REGISTRY_PASSWORD)' $(IMAGES_FILE)
 
+# registry targets
+registry: check-tools
+	@printf "\n===> Installing Registry\n";
+	@kubectx $(HARVESTER_CONTEXT)
+	@helm upgrade --install harbor ${BOOTSTRAP_DIR}/harbor/harbor-1.9.3.tgz \
+	--version 1.9.3 -n harbor -f ${BOOTSTRAP_DIR}/harbor/values.yaml --create-namespace
+registry-delete: check-tools
+	@printf "\n===> Deleting Registry\n";
+	@kubectx $(HARVESTER_CONTEXT)
+	@helm delete harbor -n harbor
+
 # git targets
 git: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
@@ -147,8 +158,6 @@ infra: check-tools
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
 	@kubectl create ns prod || true
-	@printf "\nGetting Harbor admin password:\n";
-	@$(MAKE) _terraform-value COMPONENT=infra FIELD=harbor_admin_password
 
 jumpbox: check-tools
 	@printf "\n====> Terraforming Jumpbox\n";
