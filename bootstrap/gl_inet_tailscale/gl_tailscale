@@ -1,0 +1,84 @@
+#!/bin/sh
+
+action="$1"
+service_cidr="10.10.5.0/24"
+sandbox_cidr="10.10.16.0/20"
+dev_cidr="10.10.32.0/20"
+prod_cidr="10.10.48.0/20"
+storage_cidr="10.10.64.0/20"
+lb_cidr="10.10.80.0/24"
+additional_routes="$service_cidr,$sandbox_cidr,$dev_cidr,$prod_cidr,$storage_cidr,$lb_cidr"
+
+if [ "$action" == "set_route" ];then
+    sleep 5
+    ip route add 100.64.0.0/10 dev tailscale0
+fi
+
+if [ "$action" == "restart" ];then
+    /etc/init.d/tailscale restart
+    enabled=$(uci -q get tailscale.settings.enabled)
+
+    if [ "$enabled" == "1" ]; then
+		wanip=$(ubus call network.interface.wan status|jsonfilter -e '@["ipv4-address"][0].address')
+        wanmask=$(ubus call network.interface.wan status|jsonfilter -e '@["ipv4-address"][0].mask')
+		if [ -n "$wanip" ] && [ -n "$wanmask" ] ;then
+			wan_network=$(ipcalc.sh $wanip $wanmask | awk -F= '/NETWORK/{print $2}')
+			wan_mask=$(ipcalc.sh $wanip $wanmask | awk -F= '/PREFIX/{print $2}')
+		fi
+        #wan_ip
+        if [ -n "$wan_network" ] && [ -n "$wan_mask" ]; then
+            wan_ip="$wan_network/$wan_mask"
+        fi
+
+		wwanip=$(ubus call network.interface.wwan status|jsonfilter -e '@["ipv4-address"][0].address')
+		wwanmask=$(ubus call network.interface.wwan status|jsonfilter -e '@["ipv4-address"][0].mask')
+		if [ -n "$wwanip" ] && [ -n "$wwanmask" ] ;then
+			wwan_network=$(ipcalc.sh $wwanip $wwanmask | awk -F= '/NETWORK/{print $2}')
+			wwan_mask=$(ipcalc.sh $wwanip $wwanmask | awk -F= '/PREFIX/{print $2}')
+		fi
+
+        lanip=$(uci -q get network.lan.ipaddr)
+        lanmask="$(uci -q get network.lan.netmask)"
+        lan_network=$(ipcalc.sh $lanip $lanmask | awk -F= '/NETWORK/{print $2}')
+        lan_mask=$(ipcalc.sh $lanip $lanmask | awk -F= '/PREFIX/{print $2}')
+        #lan_ip
+        if [ -n "$lan_network" ] && [ -n "$lan_mask" ]; then
+            lan_ip="$lan_network/$lan_mask"
+        fi
+		if [ -n "$wwan_network" ] && [ -n "$wwan_mask" ]; then
+			wwan_ip="$wwan_network/$wwan_mask"
+		fi
+
+        lan_enabled=$(uci -q get tailscale.settings.lan_enabled)
+		wan_enabled=$(uci -q get tailscale.settings.wan_enabled)
+		exit_node_ip=$(uci -q get tailscale.settings.exit_node_ip)
+		if [ "$lan_enabled" == "1" ] && [ "$wan_enabled" == "1" ]; then
+			if [ -n "$wan_ip" ] && [ -n "$lan_ip" ];then
+				param="--advertise-routes=$lan_ip,$wan_ip,$additional_routes"
+			fi
+
+			if [ -n "$wwan_ip" ] && [ -n "$lan_ip" ];then
+				param="--advertise-routes=$lan_ip,$wwan_ip,$additional_routes"
+			fi
+
+			if [ -n "$wan_ip" ] && [ -n "$wwan_ip" ] && [ -n "$lan_ip" ];then
+				param="--advertise-routes=$lan_ip,$wan_ip,$wwan_ip,$additional_routes"
+			fi
+
+		elif [ -n "$lan_ip" ] && [ "$lan_enabled" == "1" ]; then
+	    	param="--advertise-routes=$lan_ip,$additional_routes"
+		elif [ -n "$wan_ip" ] && [ "$wan_enabled" == "1" ]; then
+	    	param="--advertise-routes=$wan_ip,$additional_routes"
+		else
+	    	param=""
+		fi
+		
+		if [ -n "$exit_node_ip" ];then
+			param="$param --exit-node-allow-lan-access --exit-node=$exit_node_ip"
+		fi
+
+		/usr/sbin/tailscale up --reset $param --timeout 3s
+    else
+		/etc/init.d/tailscale stop
+    fi
+fi
