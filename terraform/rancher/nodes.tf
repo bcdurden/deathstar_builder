@@ -31,5 +31,31 @@ network:
       nameservers:
         addresses: [10.10.0.1]
     EOT
+    ,
+    <<EOT
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+      dhcp4: no
+      addresses: [10.10.5.21/24]
+      gateway4: 10.10.5.1
+      nameservers:
+        addresses: [10.10.0.1]
+    EOT
+    ,
+    <<EOT
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+      dhcp4: no
+      addresses: [10.10.5.22/24]
+      gateway4: 10.10.5.1
+      nameservers:
+        addresses: [10.10.0.1]
+    EOT
     ]
 }
