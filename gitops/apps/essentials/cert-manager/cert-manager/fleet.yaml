@@ -6,6 +6,3 @@ helm:
   releaseName: cert-manager
   valuesFiles:
     - values.yaml
-
-dependsOn:
-- name: essentials-gitops-apps-essentials-cert-manager-crds
