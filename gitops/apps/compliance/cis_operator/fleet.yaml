@@ -7,4 +7,4 @@ helm:
   valuesFiles:
     - values.yaml
 dependsOn:
-- name: compliance-gitops-apps-compliance-cis-operator-crd
+- name: compliance-gitops-apps-compliance-crd
