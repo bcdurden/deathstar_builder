@@ -33,7 +33,7 @@ server:
     tls: 
       - secretName: wildcard-svc-certificate
         hosts:
-          - *.svc.sienarfleet.systems
+          - "*.svc.sienarfleet.systems"
 ui:
   enabled: true
   serviceType: ClusterIP

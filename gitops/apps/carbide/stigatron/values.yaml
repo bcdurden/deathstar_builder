@@ -15,7 +15,7 @@ heimdall2:
   heimdall:
     image:
       name: carbide/heimdall2
-      tag: 0.1.0
+      tag: 0.1.1
   jwtSecret: abcde12345
   postgres:
     enabled: true
@@ -32,13 +32,13 @@ heimdallOperator:
     user: postgres
   image:
     name: carbide/heimdall-operator
-    tag: 0.1.0
+    tag: 0.1.1
   imagePullPolicy: Always
   serviceAccountName: stigatron
 hook:
   image:
     name: carbide/stigatron-hook
-    tag: 0.1.0
+    tag: 0.1.1
   imagePullPolicy: Always
 rbac:
   roleBindingName: compliance-operator
