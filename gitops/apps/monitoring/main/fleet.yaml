@@ -4,8 +4,8 @@ helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: rancher-monitoring
   version: 102.0.1+up40.1.2
-  # valuesFiles:
-  # - values.yaml
+  valuesFiles:
+  - values.yaml
 dependsOn:
 - name: monitoring-gitops-apps-monitoring-crd
 
