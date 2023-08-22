@@ -6,3 +6,5 @@ helm:
   releaseName: cis-benchmark
   valuesFiles:
     - values.yaml
+dependsOn:
+- name: compliance-gitops-apps-compliance-cis-operator-crd
