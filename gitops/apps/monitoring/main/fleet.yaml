@@ -1,11 +1,11 @@
 defaultNamespace: cattle-monitoring-system
 helm:
   releaseName: rancher-monitoring
-  repo: https://charts.rancher.io
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: rancher-monitoring
-  version: 100.1.2+up19.0.3
-  valuesFiles:
-  - values.yaml
+  version: 102.0.1+up40.1.2
+  # valuesFiles:
+  # - values.yaml
 dependsOn:
 - name: monitoring-gitops-apps-monitoring-crd
 

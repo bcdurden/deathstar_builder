@@ -2,5 +2,5 @@ defaultNamespace: cis-operator-system
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: rancher-cis-benchmark-crd
-  version: 3.0.0
+  version: 4.1.0
   releaseName: cis-benchmark-crd

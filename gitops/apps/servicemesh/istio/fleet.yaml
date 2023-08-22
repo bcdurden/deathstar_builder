@@ -2,7 +2,7 @@ defaultNamespace: istio-system
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/rancher
   chart: rancher-istio
-  version: 101.0.0+up1.14.3
+  version: 102.2.0+up1.17.2
   releaseName: istio
-  valuesFiles:
-    - values.yaml
+  # valuesFiles:
+  #   - values.yaml
