@@ -4,5 +4,5 @@ helm:
   chart: rancher-cis-benchmark
   version: 4.1.0
   releaseName: cis-benchmark
-  valuesFiles:
-    - values.yaml
+  # valuesFiles:
+  #   - values.yaml
