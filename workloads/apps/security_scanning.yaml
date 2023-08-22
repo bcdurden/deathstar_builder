@@ -20,5 +20,6 @@ spec:
         environment: bigbang
 
   paths:
-  - "./gitops/apps/security_controls"
+  - "./gitops/apps/security_controls/neuvector"
+  - "./gitops/apps/security_controls/neuvector_crd"
   
