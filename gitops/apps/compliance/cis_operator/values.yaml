@@ -3,4 +3,3 @@ global:
     clusterName: ''
     psp:
       enabled: true
-installCRDs: true
