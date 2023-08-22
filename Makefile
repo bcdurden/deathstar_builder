@@ -6,6 +6,11 @@ TERRAFORM_DIR := ${WORKING_DIR}/terraform
 WORKLOAD_DIR := ${WORKING_DIR}/workloads
 GITOPS_DIR := ${WORKING_DIR}/gitops
 
+# kubectl api-resources --verbs=list --namespaced -o name >   | xargs -n 1 kubectl get --show-kind --ignore-not-found -n longhorn-system
+# kubectl get namespace "longhorn-system" -o json \
+  | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
+  | kubectl replace --raw /api/v1/namespaces/stucked-namespace/finalize -f -
+
 HARVESTER_CONTEXT := "deathstar"
 VSPHERE_NAME := "vsphere"
 BASE_URL := sienarfleet.systems
@@ -32,14 +37,14 @@ REGISTRY_PASSWORD=
 RKE2_VIP=10.10.5.10
 RANCHER_TARGET_NETWORK=services
 RANCHER_URL := rancher.deathstar.${BASE_URL}
-RANCHER_HA_MODE=false
+RANCHER_HA_MODE=true
 RANCHER_CP_CPU_COUNT=4
 RANCHER_CP_MEMORY_SIZE="8Gi"
-RANCHER_WORKER_COUNT=2
+RANCHER_WORKER_COUNT=0
 RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
-RANCHER_REPLICAS=2
+RANCHER_REPLICAS=3
 HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
