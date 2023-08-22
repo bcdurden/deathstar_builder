@@ -72,8 +72,15 @@ nodepools:
   vmNamespace: default
   sshUser: ubuntu
   userdata: |
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
     runcmd:
-    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
     - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl
     - useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
@@ -96,7 +103,14 @@ nodepools:
   vmNamespace: default
   sshUser: ubuntu
   userdata: |
+    write_files:
+    - path: /etc/sysctl.d/60-rke2-cis.conf
+      owner: root
+      content: |
+        vm.panic_on_oom=0
+        vm.overcommit_memory=1
+        kernel.panic=10
+        kernel.panic_on_oops=1
     runcmd:
-    - until [ -f /usr/local/share/rke2/rke2-cis-sysctl.conf ]; do sleep 1; done
     - cp -f /usr/local/share/rke2/rke2-cis-sysctl.conf /etc/sysctl.d/60-rke2-cis.conf
     - systemctl restart systemd-sysctl

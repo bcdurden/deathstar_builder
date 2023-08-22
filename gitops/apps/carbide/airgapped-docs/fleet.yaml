@@ -1,4 +1,4 @@
-defaultNamespace: carbide-stigatron-system
+defaultNamespace: carbide-docs
 helm:
   repo: https://harbor.sienarfleet.systems/chartrepo/carbide
   chart: airgapped-docs
