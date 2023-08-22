@@ -77,7 +77,7 @@ if [ "$action" == "restart" ];then
 			param="$param --exit-node-allow-lan-access --exit-node=$exit_node_ip"
 		fi
 
-		/usr/sbin/tailscale up --reset $param --timeout 3s
+		/usr/sbin/tailscale up --reset $param --timeout 3s --accept-routes
     else
 		/etc/init.d/tailscale stop
     fi

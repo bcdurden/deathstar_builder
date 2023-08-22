@@ -1,4 +1,4 @@
-externalURL: https://harbor.mustafar.lol
+externalURL: https://harbor.sienarfleet.systems
 
 harborAdminPassword: "Harbor12345"
 
@@ -8,29 +8,29 @@ updateStrategy:
 expose:
   ingress:
     hosts:
-      core: harbor.mustafar.lol
-      notary: notary.mustafar.lol
+      core: harbor.sienarfleet.systems
+      notary: notary.sienarfleet.systems
   tls:
     certSource: secret
     secret:
-      secretName: harbor-prod-certificate
-      notarySecretName: harbor-prod-certificate
+      secretName: harbor-prod-homelab-certificate
+      notarySecretName: harbor-prod-homelab-certificate
 
 persistence:
   persistentVolumeClaim:
     registry:
-      size: 65Gi
-      storageClass: "longhorn"
+      size: 120Gi
+      storageClass: "harvester-longhorn"
     chartmuseum:
-      storageClass: "longhorn"
+      storageClass: "harvester-longhorn"
     jobservice:
-      storageClass: "longhorn"
+      storageClass: "harvester-longhorn"
     database:
-      storageClass: "longhorn"
+      storageClass: "harvester-longhorn"
     redis:
-      storageClass: "longhorn"
+      storageClass: "harvester-longhorn"
     trivy:
-      storageClass: "longhorn"
+      storageClass: "harvester-longhorn"
 
 # If using an external Postgres DB
 # database:

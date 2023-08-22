@@ -23,10 +23,10 @@ CARBIDE_PASSWORD:= $(shell yq e .token_password ${CARBIDE_TOKEN_FILE})
 CARBIDE_LICENSE := $(shell yq e .license ${CARBIDE_TOKEN_FILE})
 IMAGES_FILE=""
 
-# Registry info
+# Registry info 
 REGISTRY_URL := harbor.$(BASE_URL)
 REGISTRY_USER=admin
-REGISTRY_PASSWORD=""
+REGISTRY_PASSWORD=
 
 # Rancher on Harvester Info
 RKE2_VIP=10.10.5.10
@@ -186,7 +186,6 @@ rancher: check-tools  # state stored in Harvester K8S
 	@cp ${TERRAFORM_DIR}/rancher/kube_config_server.yaml /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && kubecm add -c -f /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && rm /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > $(HARVESTER_RANCHER_CERT_SECRET)
 	@kubectx $(HARVESTER_RANCHER_CLUSTER_NAME)
-	@helm upgrade --install cert-manager -n cert-manager --create-namespace --set installCRDs=true --set image.repository=$(REGISTRY_URL)/jetstack/cert-manager-controller --set webhook.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-webhook --set cainjector.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-cainjector --set startupapicheck.image.repository=$(REGISTRY_URL)/jetstack/cert-manager-ctl --set securityContext.runAsNonRoot=true $(BOOTSTRAP_DIR)/rancher/cert-manager-v$(CERT_MANAGER_VERSION).tgz
 	@helm upgrade --install rancher -n cattle-system --create-namespace --set hostname=$(RANCHER_URL) --set replicas=$(RANCHER_REPLICAS) --set bootstrapPassword=admin --set rancherImage=$(REGISTRY_URL)/rancher/rancher --set "carbide.whitelabel.image=$(REGISTRY_URL)/carbide/carbide-whitelabel" --set systemDefaultRegistry=$(REGISTRY_URL) --set ingress.tls.source=secret --set useBundledSystemChart=true $(BOOTSTRAP_DIR)/rancher/carbide-rancher-v$(RANCHER_VERSION).tgz
 	@cat $(HARVESTER_RANCHER_CERT_SECRET) | yq e '.metadata.resourceVersion = null' | yq e '.metadata.uid = null' | kubectl apply -f - || true
 	@kubectl create ns fleet-default || true
