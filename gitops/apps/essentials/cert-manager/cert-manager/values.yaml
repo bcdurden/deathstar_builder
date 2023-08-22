@@ -9,3 +9,7 @@ cainjector:
 startupapicheck:
   image:
     repository: harbor.sienarfleet.systems/jetstack/cert-manager-ctl
+
+global:
+  podSecurityPolicy:
+    enabled: true
