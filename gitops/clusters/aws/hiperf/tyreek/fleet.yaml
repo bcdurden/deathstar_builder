@@ -1,6 +1,8 @@
 defaultNamespace: default
 helm:
-  chart: ttps://github.com/bcdurden/multicloud-rancher-demo/raw/main/charts/cluster-template.tar.gz
+  repo: https://harbor.sienarfleet.systems/chartrepo/rancher
+  chart: cluster-template
+  version: 0.0.7
   releaseName: cluster-template-hiperf-tyreek
   valuesFiles:
     - values.yaml

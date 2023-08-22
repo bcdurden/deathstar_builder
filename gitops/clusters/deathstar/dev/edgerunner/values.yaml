@@ -8,7 +8,7 @@ cluster:
     cluster_name: edgerunner
     location: deathstar
   name: dev-edgerunner
-kubernetesVersion: v1.24.7+k3s1
+kubernetesVersion: v1.24.9+k3s2
 registries:
   configs:
     rgcrprod.azurecr.us:
