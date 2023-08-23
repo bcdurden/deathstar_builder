@@ -21,6 +21,19 @@ targetCustomizations:
     matchLabels:
       environment: services
       cluster_name: shared
+- name: dev-edgerunner
+  helm:
+    values:
+      promtail:
+        config:
+          snippets:
+            pipelineStages:
+            - static_labels:
+                cluster: dev-edgerunner
+  clusterSelector:
+    matchLabels:
+      environment: dev
+      cluster_name: edgerunner
 - name: dev-fluffymunchkin
   helm:
     values:
