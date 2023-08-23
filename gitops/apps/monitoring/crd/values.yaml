@@ -2,3 +2,8 @@ global:
   cattle:
     psp:
       enabled: true
+    rkePathPrefix: ''
+    rkeWindowsPathPrefix: ''
+    systemDefaultRegistry: harbor.sienarfleet.systems
+    url: https://rancher.deathstar.sienarfleet.systems
+  systemDefaultRegistry: harbor.sienarfleet.systems

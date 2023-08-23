@@ -4,3 +4,5 @@ helm:
   chart: rancher-monitoring-crd
   releaseName: rancher-monitoring-crd
   version: 102.0.1+up40.1.2
+  valuesFiles:
+  - values.yaml
