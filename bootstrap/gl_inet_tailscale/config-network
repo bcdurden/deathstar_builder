@@ -1,0 +1,11 @@
+config switch_vlan                        
+        option device 'switch0'       
+        option ports '0t 1t 3t 5t'    
+        option vlan '4040'       
+                                
+config interface 'unifi'
+        option device 'br-lan.4040'
+        option proto 'static'  
+        option netmask '255.255.255.0'
+        option broadcast '10.255.253.255'
+        option ipaddr '10.255.253.1'
