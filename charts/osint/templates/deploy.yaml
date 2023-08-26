@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: {}
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-default-osint
+  name: osint
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-default-osint
+  template:
+    metadata:
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-default-osint
+      namespace: default
+    spec:
+      containers:
+        - env:
+            - name: GOOGLE_CLOUD_API_KEY
+              value: 
+            - name: REACT_APP_SHODAN_API_KEY
+              value: 
+            - name: REACT_APP_WHO_API_KEY
+              value: 
+            - name: SECURITY_TRAILS_API_KEY
+              value: 
+          image: lissy93/web-check
+          imagePullPolicy: IfNotPresent
+          name: osint-webcheck
+          ports:
+            - containerPort: 3000
+              name: osint
+              protocol: TCP
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
