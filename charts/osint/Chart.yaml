@@ -1,0 +1,7 @@
+annotations:
+  catalog.cattle.io/namespace: fleet-default
+  catalog.cattle.io/type: cluster-template
+apiVersion: v1
+description: Template for OSINT WebCheck App - credit to Lissy93 for the app and Docker components
+name: osint-webcheck
+version: 0.0.1

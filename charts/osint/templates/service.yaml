@@ -2,13 +2,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: osint
-  namespace: default
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: osint-webcheck
+    {{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
+    {{- end }}
 spec:
   ports:
     - name: webcheck
-      port: 8080
+      port: {{ .Values.service.port }}
       protocol: TCP
       targetPort: 3000
   selector:
-    workload.user.cattle.io/workloadselector: apps.deployment-default-osint
-  type: ClusterIP
+    app: osint-webcheck
+  type: {{ .Values.service.type }}

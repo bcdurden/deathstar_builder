@@ -1,0 +1,69 @@
+questions:
+- variable: namespace
+  default: default
+  description: "Specify the target namespace for WebCheck"
+  label: "Namespace"
+  required: true
+  type: string
+  group: "General"
+- variable: image
+  default: lissy93/web-check
+  description: "The container image for WebCheck"
+  label: "OSINT - WebCheck Image"
+  type: string
+  group: "General"
+- variable: replicas
+  default: 1
+  description: "Number of replicas to run"
+  label: "Replicas"
+  type: string
+  group: "General"
+- variable: api_keys.google_api_key
+  default: ""
+  description: "The google cloud API key"
+  label: "Google Cloud API key"
+  type: string
+  group: "API Keys"
+- variable: api_keys.shodan_api_key
+  default: ""
+  description: "The shodan API key"
+  label: "Shodan API key"
+  type: string
+  group: "API Keys"
+- variable: api_keys.who_api_key
+  default: ""
+  description: "The Who api key"
+  label: "Who API key"
+  type: string
+  group: "API Keys"
+- variable: api_keys.security_trails_api_key
+  default: ""
+  description: "The Security Trails API key"
+  label: "Security Trails API key"
+  type: string
+  group: "API Keys"
+- variable: service.port
+  default: 8080
+  description: "The service port to map to the container"
+  label: "Service Port"
+  type: string
+  group: "Service"
+- variable: service.type
+  default: default
+  description: "The service type"
+  label: "Service Type"
+  type: string
+  group: "Service"
+- variable: ingress.enabled
+  default: false
+  description: "Ingress enable flag"
+  label: "Ingress Enable"
+  type: boolean
+  group: "Ingress"
+- variable: ingress.url
+  default: osint.myurl.lol
+  description: "The Ingress URL"
+  label: "Ingress URL"
+  type: string
+  group: "Ingress"
+  show_if: ingress.enabled=true

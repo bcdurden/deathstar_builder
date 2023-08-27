@@ -1,0 +1,26 @@
+namespace: default
+deployment:
+  labels: {}
+  replicas: 1
+  image: lissy93/web-check
+  image_pull_policy: IfNotPresent
+  security_context:  # FYI as it sits, this won't work in a hardened cluster with PSPs due to root user runtime
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+api_keys:
+  google_api_key: 
+  shodan_api_key:
+  who_api_key:
+  security_trails_api_key:
+
+service:
+  labels: {}
+  port: 8080
+  type: ClusterIP
+
+ingress:
+  enabled: false
+  labels: {}
+  url: osint.myurl.lol

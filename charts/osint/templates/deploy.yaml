@@ -3,43 +3,46 @@ kind: Deployment
 metadata:
   annotations: {}
   labels:
-    workload.user.cattle.io/workloadselector: apps.deployment-default-osint
+    app: osint-webcheck
+    {{- if .Values.deployment.labels }}
+{{ toYaml .Values.deployment.labels | indent 4 }}
+    {{- end }}
   name: osint
-  namespace: default
+  namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
-      workload.user.cattle.io/workloadselector: apps.deployment-default-osint
+      app: osint-webcheck
   template:
     metadata:
       labels:
-        workload.user.cattle.io/workloadselector: apps.deployment-default-osint
-      namespace: default
+        app: osint-webcheck
+        {{- if .Values.deployment.labels }}
+{{ toYaml .Values.deployment.labels | indent 8 }}
+        {{- end }}
+      namespace: {{ .Values.namespace }}
     spec:
       containers:
-        - env:
+        - name: osint-webcheck
+          env:
             - name: GOOGLE_CLOUD_API_KEY
-              value: 
+              value: {{ .Values.api_keys.google_api_key }}
             - name: REACT_APP_SHODAN_API_KEY
-              value: 
+              value: {{ .Values.api_keys.shodan_api_key }}
             - name: REACT_APP_WHO_API_KEY
-              value: 
+              value: {{ .Values.api_keys.who_api_key }}
             - name: SECURITY_TRAILS_API_KEY
-              value: 
-          image: lissy93/web-check
-          imagePullPolicy: IfNotPresent
-          name: osint-webcheck
+              value: {{ .Values.api_keys.security_trails_api_key }}
+          image: {{ .Values.deployment.image }}
+          imagePullPolicy: {{ .Values.deployment.image_pull_policy }}
           ports:
             - containerPort: 3000
               name: osint
               protocol: TCP
           resources: {}
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: false
-            runAsNonRoot: false
+          securityContext: 
+{{ toYaml .Values.deployment.security_context | indent 12 }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
