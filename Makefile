@@ -10,6 +10,7 @@ GITOPS_DIR := ${WORKING_DIR}/gitops
 # kubectl get namespace "longhorn-system" -o json \
   | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
   | kubectl replace --raw /api/v1/namespaces/stucked-namespace/finalize -f -
+# sudo sysctl -w net.bridge.bridge-nf-call-iptables=0
 
 HARVESTER_CONTEXT := "deathstar"
 VSPHERE_NAME := "vsphere"
@@ -20,6 +21,7 @@ CLOUDFLARE_TOKEN=""
 CERT_MANAGER_VERSION=1.10.2
 RANCHER_VERSION=2.7.5
 CLOUD_TOKEN_FILE=/Volumes/BIGBOY/keys/cloud_dns_account_key.json
+BITNAMI_KEYCLOAK_RELEASE=16.1.2
 
 # Carbide info
 CARBIDE_TOKEN_FILE=/Volumes/BIGBOY/keys/carbide.yaml
@@ -97,7 +99,7 @@ certs-import: check-tools
 keycloak: check-tools
 	@printf "\n===>Deploying Keycloak\n";
 	@kubectx ${HARVESTER_CONTEXT}
-	@helm upgrade --install keycloak -n keycloak --create-namespace -f ${BOOTSTRAP_DIR}/keycloak/values.yaml ${BOOTSTRAP_DIR}/keycloak/keycloak-14.5.0.tgz
+	@helm upgrade --install keycloak -n keycloak --create-namespace -f ${BOOTSTRAP_DIR}/keycloak/values.yaml ${BOOTSTRAP_DIR}/keycloak/keycloak-${BITNAMI_KEYCLOAK_RELEASE}.tgz
 	kubectl get secret wildcard-prod-certificate -o json | jq 'del(.metadata["namespace","creationTimestamp","resourceVersion","selfLink","uid"])' | kubectl apply --namespace=keycloak -f -
 	kubectl patch ingress keycloak -n keycloak -p '{"spec":{"tls":[{"hosts":["keycloak.sienarfleet.systems"],"secretName":"wildcard-prod-certificate"}]}}'
 
@@ -138,7 +140,7 @@ registry-delete: check-tools
 # git targets
 git: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
-	@helm install gitea $(BOOTSTRAP_DIR)/gitea/gitea-6.0.1.tgz \
+	@helm upgrade --install gitea $(BOOTSTRAP_DIR)/gitea/gitea-6.0.1.tgz \
 	--namespace git \
 	--set gitea.admin.password=$(GIT_ADMIN_PASSWORD) \
 	--set gitea.admin.username=gitea \

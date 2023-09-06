@@ -68,7 +68,7 @@ image:
   pullPolicy: IfNotPresent
   pullSecrets: []
   registry: docker.io
-  repository: bitnami/keycloak
+  repository: harbor.sienarfleet.systems/bitnami/keycloak
   tag: 21.0.2-debian-11-r8
 ingress:
   annotations: {}
@@ -118,7 +118,7 @@ keycloakConfigCli:
     pullPolicy: IfNotPresent
     pullSecrets: []
     registry: docker.io
-    repository: bitnami/keycloak-config-cli
+    repository: harbor.sienarfleet.systems/bitnami/keycloak-config-cli
     tag: 5.6.1-debian-11-r14
   initContainers: []
   nodeSelector: {}
@@ -244,7 +244,7 @@ service:
     https: 443
   sessionAffinity: None
   sessionAffinityConfig: {}
-  type: LoadBalancer
+  type: ClusterIP
 serviceAccount:
   annotations: {}
   automountServiceAccountToken: true
