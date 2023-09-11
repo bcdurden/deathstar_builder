@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ssh rancher@10.10.0.11 "sudo shutdown now"
+ssh rancher@10.10.0.12 "sudo shutdown now"
+ssh rancher@10.10.0.13 "sudo shutdown now"
