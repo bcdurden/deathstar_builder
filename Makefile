@@ -155,6 +155,21 @@ git-delete: check-tools
 	@printf "\n===> Deleting Gitea\n";
 	@helm delete gitea -n git
 
+# vault targets
+vault: check-tools
+	@kubectx ${HARVESTER_CONTEXT}
+	@helm upgrade --install vault $(BOOTSTRAP_DIR)/vault/vault-0.25.0.tgz \
+	--namespace vault \
+	--create-namespace \
+	-f $(BOOTSTRAP_DIR)/vault/values.yaml 
+	@kubectl get secret wildcard-prod-certificate -o json | jq 'del(.metadata["namespace","creationTimestamp","resourceVersion","selfLink","uid"])' | kubectl apply --namespace=vault -f -
+
+# helm upgrade --install vault-secrets-operator $(BOOTSTRAP_DIR)/vault/secrets-operator/vault-secrets-operator-0.1.0.tgz \
+# --namespace vault-secrets-operator \
+# --create-namespace \
+# -f $(BOOTSTRAP_DIR)/vault/secrets-operator/values.yaml 
+
+
 ### terraform main targets
 _HARBOR_KEY=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml | yq -e '.data."tls.key"' -)
 _HARBOR_CERT=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificate -o yaml | yq -e '.data."tls.crt"' -)
@@ -272,6 +287,16 @@ status: check-tools
 	@printf "\n===> Inspecting Running Workloads in Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
 	@kapp inspect -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE)
+
+NODE1_IP=10.10.0.11
+NODE2_IP=10.10.0.12
+NODE3_IP=10.10.0.13
+patch: check-tools
+	@printf "\n===> Patching Harvester Nodes\n"
+	@printf "\n**** iptable Bug\n"
+	@ssh rancher@${NODE1_IP} "sudo sysctl -w net.bridge.bridge-nf-call-iptables=0"
+	@ssh rancher@${NODE2_IP} "sudo sysctl -w net.bridge.bridge-nf-call-iptables=0"
+	@ssh rancher@${NODE3_IP} "sudo sysctl -w net.bridge.bridge-nf-call-iptables=0"
 
 # downstream
 carbide-license: check-tools

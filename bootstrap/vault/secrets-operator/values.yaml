@@ -1,0 +1,14 @@
+defaultVaultConnection:
+  enabled: true
+defaultAuthMethod:
+  enabled: true
+
+controller:
+  kubeRbacProxy:
+    image:
+      repository: harbor.sienarfleet.systems/hashicorp/kube-rbac-proxy
+      tag: v0.11.0
+  manager:
+    image:
+      repository: harbor.sienarfleet.systems/hashicorp/vault-secrets-operator
+      tag: 0.1.0

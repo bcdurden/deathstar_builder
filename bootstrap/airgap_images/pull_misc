@@ -99,7 +99,8 @@ DEST_DIRECTORY=/tmp/hashicorp-images
 DEST_TAR=/tmp/hashicorp-images.tar.gz 
 
 CONSUL_RELEASE=0.39.0
-VAULT_RELEASE=0.22.0
+VAULT_RELEASE=0.25.0
+VAULT_SECRETS_OPERATOR=0.1.0
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -137,6 +138,26 @@ done
 for image in $(helm template hashicorp/vault --version ${VAULT_RELEASE} | grep 'hashicorp/' | sed -e 's/^[ \t]*//' | sed 's/"//g' | sort --unique | awk '{ print $2 }'); do
     source_image=$image
     dest_image=$(echo $image | sed "s|hashicorp|TARGET_REGISTRY/hashicorp|g")
+
+    # Create manifest to use during load
+    img_dir=$(mktemp -d $DEST_DIRECTORY/hashicorp-image.XXXXXXX)
+    img_id_num=${img_dir: -24}
+    echo "$img_id_num|$dest_image" >> $DEST_DIRECTORY/manifest.txt
+
+    # Save image locally
+    printf "Exporting $source_image\n"
+    cosign save --dir "$img_dir" $source_image
+    if [ $? != 0 ]; then
+      cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
+    fi
+done
+for image in $(helm template hashicorp/vault-secrets-operator --version ${VAULT_SECRETS_OPERATOR} | grep 'image:' | sed -e 's/^[ \t]*//' | sed 's/"//g' | sort --unique | awk '{ print $2 }'); do
+    source_image=$image
+    if [[ $image =~ "hashicorp/" ]]; then
+        dest_image=$(echo $image | sed "s|hashicorp|TARGET_REGISTRY/hashicorp|g")
+    else
+        dest_image=$(echo $image | sed "s|gcr.io/kubebuilder|TARGET_REGISTRY/hashicorp|g")
+    fi
 
     # Create manifest to use during load
     img_dir=$(mktemp -d $DEST_DIRECTORY/hashicorp-image.XXXXXXX)

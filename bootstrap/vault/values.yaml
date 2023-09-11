@@ -1,0 +1,64 @@
+server:
+  affinity: ""
+  ha:
+    enabled: false
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.sienarfleet.systems/hashicorp/vault
+    tag: 1.14.0
+
+  ingress:
+    enabled: true
+    labels: {}
+    annotations: {}
+      # |
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+      #   or
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+
+    activeService: true
+    hosts:
+      - host: vault.sienarfleet.systems
+        paths: []
+    ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
+    extraPaths: []
+    # - path: /*
+    #   backend:
+    #     service:
+    #       name: ssl-redirect
+    #       port:
+    #         number: use-annotation
+    tls: 
+      - secretName: wildcard-prod-certificate
+        hosts:
+          - "*.sienarfleet.systems"
+ui:
+  enabled: true
+  serviceType: ClusterIP
+  externalPort: 8200
+
+csi:
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.sienarfleet.systems/hashicorp/vault-csi-provider
+    tag: 1.4.0
+  pod:
+    agent:
+      enabled: true
+      extraArgs: []
+      image:
+        repository: "hashicorp/vault"
+        tag: 1.14.0
+
+injector:
+  agentImage:
+    repository: harbor.sienarfleet.systems/hashicorp/vault
+    tag: 1.14.0
+  image:
+    pullPolicy: IfNotPresent
+    repository: harbor.sienarfleet.systems/hashicorp/vault-k8s
+    tag: 1.2.1
+    
+  
