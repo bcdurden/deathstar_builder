@@ -51,7 +51,7 @@ nodepools:
   name: worker-dev-edgerunner-pool
   labels: {}
   taints: {}
-  quantity: 3
+  quantity: 5
   paused: false
   diskSize: 40
   diskBus: virtio
