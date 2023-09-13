@@ -1,5 +1,5 @@
 cloudprovider: harvester
-cloudCredentialSecretName: cattle-global-data:deathstar
+cloudCredentialSecretName: cattle-global-data:pacstar
 cloudProviderConfigSecretName: secret://fleet-default:devedgerunner-cloudprovider
 cluster:
   annotations: {}

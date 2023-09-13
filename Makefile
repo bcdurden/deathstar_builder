@@ -12,9 +12,9 @@ GITOPS_DIR := ${WORKING_DIR}/gitops
   | kubectl replace --raw /api/v1/namespaces/stucked-namespace/finalize -f -
 # sudo sysctl -w net.bridge.bridge-nf-call-iptables=0
 
-HARVESTER_CONTEXT := "deathstar"
+HARVESTER_CONTEXT := "pacstar"
 VSPHERE_NAME := "vsphere"
-BASE_URL := sienarfleet.systems
+BASE_URL := pacstar.sienarfleet.systems
 GITEA_URL := git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
 CLOUDFLARE_TOKEN=""
@@ -31,14 +31,14 @@ CARBIDE_LICENSE := $(shell yq e .license ${CARBIDE_TOKEN_FILE})
 IMAGES_FILE=""
 
 # Registry info 
-REGISTRY_URL := harbor.$(BASE_URL)
+REGISTRY_URL=harbor.sienarfleet.systems
 REGISTRY_USER=admin
 REGISTRY_PASSWORD=
 
 # Rancher on Harvester Info
-RKE2_VIP=10.10.5.10
+RKE2_VIP=10.10.5.16
 RANCHER_TARGET_NETWORK=services
-RANCHER_URL := rancher.deathstar.${BASE_URL}
+RANCHER_URL := rancher.${BASE_URL}
 RANCHER_HA_MODE=true
 RANCHER_CP_CPU_COUNT=4
 RANCHER_CP_MEMORY_SIZE="8Gi"
@@ -47,7 +47,7 @@ RANCHER_NODE_SIZE="40Gi"
 RANCHER_HARVESTER_WORKER_CPU_COUNT=4
 RANCHER_HARVESTER_WORKER_MEMORY_SIZE="8Gi"
 RANCHER_REPLICAS=3
-HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester
+HARVESTER_RANCHER_CLUSTER_NAME=rancher-harvester-pacstar
 RKE2_IMAGE_NAME=ubuntu-rke2-airgap-harvester
 HARBOR_IMAGE_NAME=harbor-ubuntu
 HARVESTER_RANCHER_CERT_SECRET=rancher_cert.yaml
@@ -176,6 +176,7 @@ _HARBOR_CERT=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificat
 infra: check-tools
 	@printf "\n=====> Terraforming Infra\n";
 	@kubectx ${HARVESTER_CONTEXT}
+	@$(MAKE) _terraform-init COMPONENT=infra VARS='TF_VAR_harbor_url="$(REGISTRY_URL)" TF_VAR_harbor_cert_b64="$(_HARBOR_CERT)" TF_VAR_harbor_key_b64="$(_HARBOR_KEY)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
 	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_harbor_url="$(REGISTRY_URL)" TF_VAR_harbor_cert_b64="$(_HARBOR_CERT)" TF_VAR_harbor_key_b64="$(_HARBOR_KEY)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
@@ -204,6 +205,7 @@ rancher: check-tools  # state stored in Harvester K8S
 	@printf "\n====> Terraforming RKE2 + Rancher\n";
 	@kubecm delete $(HARVESTER_RANCHER_CLUSTER_NAME) > /dev/null 2>&1 || true
 	@kubectx ${HARVESTER_CONTEXT}
+	@$(MAKE) _terraform-init COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=${shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -}'
 	@$(MAKE) _terraform COMPONENT=rancher VARS='TF_VAR_carbide_username="$(CARBIDE_USER)" TF_VAR_carbide_password="$(CARBIDE_PASSWORD)" TF_VAR_rancher_server_dns="$(RANCHER_URL)" TF_VAR_master_vip="$(RKE2_VIP)" TF_VAR_registry_url="$(REGISTRY_URL)" TF_VAR_control_plane_cpu_count=$(RANCHER_CP_CPU_COUNT) TF_VAR_control_plane_memory_size=$(RANCHER_CP_MEMORY_SIZE) TF_VAR_worker_count=$(RANCHER_WORKER_COUNT) TF_VAR_control_plane_ha_mode=$(RANCHER_HA_MODE) TF_VAR_node_disk_size=$(RANCHER_NODE_SIZE) TF_VAR_worker_cpu_count=$(RANCHER_HARVESTER_WORKER_CPU_COUNT) TF_VAR_worker_memory_size=$(RANCHER_HARVESTER_WORKER_MEMORY_SIZE) TF_VAR_target_network_name=$(RANCHER_TARGET_NETWORK) TF_VAR_harvester_rke2_image_name=${shell kubectl get virtualmachineimage -o yaml | yq -e '.items[]|select(.spec.displayName=="$(RKE2_IMAGE_NAME)")' - | yq -e '.metadata.name' -}'
 	@cp ${TERRAFORM_DIR}/rancher/kube_config_server.yaml /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && kubecm add -c -f /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml && rm /tmp/$(HARVESTER_RANCHER_CLUSTER_NAME).yaml
 	@kubectl get secret -n cattle-system tls-rancherdeathstar-ingress -o yaml | yq e '.metadata.name = "tls-rancher-ingress"' > $(HARVESTER_RANCHER_CERT_SECRET)
@@ -274,7 +276,7 @@ workloads-yes:
 	@printf "\n===> Synchronizing Workloads with Fleet\n";
 	@kubectx ${HARVESTER_RANCHER_CLUSTER_NAME}
 	@kubectl get secret -n cattle-global-data $(HARVESTER_CONTEXT) || kubectl get secret -n cattle-global-data $(_HARVESTER_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(HARVESTER_CONTEXT)' | yq -e '.metadata.annotations."field.cattle.io/name" = $(HARVESTER_CONTEXT)' - | kubectl apply -f -
-	@kubectl get secret -n cattle-global-data $(VSPHERE_NAME) || kubectl get secret -n cattle-global-data $(_VSPHERE_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(VSPHERE_NAME)' | kubectl apply -f -
+# @kubectl get secret -n cattle-global-data $(VSPHERE_NAME) || kubectl get secret -n cattle-global-data $(_VSPHERE_SECRET_NAME) -o yaml | yq -e '.metadata.name = $(VSPHERE_NAME)' | kubectl apply -f -
 	@ytt -f $(WORKLOAD_DIR) | kapp deploy -a $(WORKLOADS_KAPP_APP_NAME) -n $(WORKLOADS_NAMESPACE) -f - -y 
 
 workloads-destroy: workloads-delete
@@ -310,7 +312,7 @@ _terraform: check-tools
 _terraform-init: check-tools
 	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) init
-_terraform-apply: check-tools
+_terraform-apply: check-tools 
 	@kubectx ${HARVESTER_CONTEXT}
 	@$(VARS) terraform -chdir=${TERRAFORM_DIR}/$(COMPONENT) apply
 _terraform-value: check-tools

@@ -11,4 +11,4 @@ spec:
     name: letsencrypt-prod-clouddns
     kind: ClusterIssuer
   dnsNames:
-  - #@ "rancher.deathstar." + data.values.base_url
+  - #@ "rancher." + data.values.base_url

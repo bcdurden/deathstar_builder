@@ -5,7 +5,7 @@ metadata:
   namespace: fleet-local
 spec:
   repo: https://github.com/bcdurden/deathstar_builder.git
-  branch: main  
+  branch: pacstar  
   targets:
   - clusterName: local
   paths:

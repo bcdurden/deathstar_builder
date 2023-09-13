@@ -14,11 +14,11 @@ resource "harvester_image" "ubuntu-airgap" {
   source_type  = "download"
   url          = "http://${var.host_ip}:${var.port}/${var.ubuntu_image_name}.img"
 }
-resource "harvester_image" "harbor-airgap" {
-  name      = var.harbor_image_name
-  namespace = "default"
+# resource "harvester_image" "harbor-airgap" {
+#   name      = var.harbor_image_name
+#   namespace = "default"
 
-  display_name = var.harbor_image_name
-  source_type  = "download"
-  url          = "http://${var.host_ip}:${var.port}/${var.harbor_image_name}.img"
-}
+#   display_name = var.harbor_image_name
+#   source_type  = "download"
+#   url          = "http://${var.host_ip}:${var.port}/${var.harbor_image_name}.img"
+# }

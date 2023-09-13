@@ -78,7 +78,7 @@ ingress:
   extraPaths: []
   extraRules: []
   extraTls: []
-  hostname: keycloak.sienarfleet.systems
+  hostname: keycloak.pacstar.sienarfleet.systems
   ingressClassName: ''
   path: '{{ .Values.httpRelativePath }}'
   pathType: ImplementationSpecific

@@ -1,24 +1,24 @@
 data "harvester_clusternetwork" "mgmt" {
   name = "mgmt"
 }
-resource "harvester_clusternetwork" "data" {
-  name = "dataplane"
-}
-resource "harvester_vlanconfig" "dataplane" {
-  name = "cluster-vlan-dataplane"
+# resource "harvester_clusternetwork" "data" {
+#   name = "dataplane"
+# }
+# resource "harvester_vlanconfig" "dataplane" {
+#   name = "cluster-vlan-dataplane"
 
-  cluster_network_name = harvester_clusternetwork.data.name
+#   cluster_network_name = harvester_clusternetwork.data.name
 
-  uplink {
-    nics = [
-      "eno1",
-      "eno2"
-    ]
+#   uplink {
+#     nics = [
+#       "eno1",
+#       "eno2"
+#     ]
 
-    bond_mode = "active-backup"
-    mtu       = 1500
-  }
-}
+#     bond_mode = "active-backup"
+#     mtu       = 1500
+#   }
+# }
 resource "harvester_network" "services" {
   name      = "services"
   namespace = "default"

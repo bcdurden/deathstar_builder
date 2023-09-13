@@ -1,6 +1,5 @@
 module "rke2-hardened" {
-  source  = "bcdurden/rke2-hardened/harvester"
-  version = "0.1.0"
+  source  = "../rke2_module"
   
   main_cluster_prefix = var.main_cluster_prefix
   worker_prefix = var.worker_prefix
@@ -26,7 +25,7 @@ network:
   ethernets:
     enp1s0:
       dhcp4: no
-      addresses: [10.10.5.20/24]
+      addresses: [10.10.5.17/24]
       gateway4: 10.10.5.1
       nameservers:
         addresses: [10.10.0.1]
@@ -39,7 +38,7 @@ network:
   ethernets:
     enp1s0:
       dhcp4: no
-      addresses: [10.10.5.21/24]
+      addresses: [10.10.5.18/24]
       gateway4: 10.10.5.1
       nameservers:
         addresses: [10.10.0.1]
@@ -52,7 +51,7 @@ network:
   ethernets:
     enp1s0:
       dhcp4: no
-      addresses: [10.10.5.22/24]
+      addresses: [10.10.5.19/24]
       gateway4: 10.10.5.1
       nameservers:
         addresses: [10.10.0.1]
