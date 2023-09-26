@@ -1,4 +1,19 @@
 #!ipxe
-kernel harvester-v1.2.0-vmlinuz-amd64 initrd=harvester-v1.2.0-initrd-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 root=live:http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-rootfs-amd64.squashfs harvester.install.automatic=true harvester.install.config_url=http://bootstrap.sienarfleet.systems/harvester/config-create.yaml
-initrd harvester-v1.2.0-initrd-amd64
+set base-url http://bootstrap.sienarfleet.systems/harvester
+console --x 1920 --y 1080 --picture carbide.png
+
+menu
+item create    Create Harvester Fulcrum Cluster
+item join      Join Harvester Fulcrum Cluster
+item exit      Exit to BIOS
+choose --default join --timeout 30000 target && goto ${target}
+
+:create
+kernel ${base-url}/harvester-v1.2.0-vmlinuz-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 root=live:${base-url}/harvester-v1.2.0-rootfs-amd64.squashfs harvester.install.automatic=true harvester.install.config_url=${base-url}/config-create.yaml
+initrd ${base-url}/harvester-v1.2.0-initrd-amd64
+boot
+
+:join
+kernel ${base-url}/harvester-v1.2.0-vmlinuz-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 root=live:${base-url}/harvester-v1.2.0-rootfs-amd64.squashfs harvester.install.automatic=true harvester.install.config_url=${base-url}/config-join.yaml
+initrd ${base-url}/harvester-v1.2.0-initrd-amd64
 boot

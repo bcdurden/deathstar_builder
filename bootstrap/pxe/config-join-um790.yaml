@@ -1,27 +1,22 @@
 scheme_version: 1
 token: mysharedtoken # Replace with a desired token
+server_url: https://10.10.0.15:443
 os:
   hostname: fulcrum1 # Set a hostname. 
   ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZViyH636xpBFjteZDbEc3HrOIREuHcd6hjIq75G9zoisuq+ckjFeNZy0ucP4GohImoS8gtJeZalLQVDyxGr3aJ5W4mZHwzxtp+kqAfuBWQvE/An6xTlGVWBWFtHn2a24OTk33hGx88JBu+1FLqMlyud0jyZUuPbfbyP+DQpJB/39RTTd7+owJDRim7EBBG3suPsFuETM3KQ+c875OClcBoFor/zb9koPrqrtDpM1M16wVsVMQ05UfAVUN5iKvX2R0JYYlWBBaaiIldyI7EqTwYxdEJLWEbnd/9Thv5DdRctA9Bj/lzUg6BVgkxh9t7Ryoch9WFO62LSh61DJwnQRb
-  password: rfedftw420    
-  ntp_servers:
-  - 0.suse.pool.ntp.org
-  - 1.suse.pool.ntp.org
+  password: rfedftw420
   dns_nameservers:
   - 10.10.0.1
   labels:
     edge_cluster: fulcrum
 install:
-  mode: create
+  mode: join
   management_interface: 
     interfaces:
       - name: enp2s0
     default_route: true
-    method: static
-    ip: 10.10.0.16
-    subnet_mask: 255.255.255.0
-    gateway: 10.10.0.1
+    method: dhcp
     # vlan_id:
     bond_options:
       mode: balance-tlb
@@ -29,8 +24,3 @@ install:
   device: /dev/nvme0n1 # The target disk to install
   # data_disk: /dev/sdb # It is recommended to use a separate disk to store VM data
   iso_url: http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-amd64.iso
-  # tty: ttyS1,115200n8   # For machines without a VGA console
-
-  vip: 10.10.0.15        # The VIP to access the Harvester GUI. Make sure the IP is free to use
-  vip_mode: static        # Or dhcp, check configuration file for more information
-  # vip_hw_addr:   # Leave empty when vip_mode is static
