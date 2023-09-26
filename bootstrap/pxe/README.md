@@ -17,4 +17,4 @@ What this looks like when hosted via Harvester Seeder / Tinkerbell, I am unsure.
 
 ## Result
 After a custom build of iPXE, background images were enabled as well as console commands. Boot process yields this screen:
-![ipxe-carbide](./ipxe_boot.png)
+![ipxe-carbide](./ipxe_boot.jpg)
