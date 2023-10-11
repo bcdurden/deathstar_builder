@@ -1,0 +1,21 @@
+# apiVersion: "tinkerbell.org/v1alpha1"
+# kind: Workflow
+# metadata:
+#   name: wf1-ubuntu
+#   namespace: tink-system
+# spec:
+#   templateRef: ubuntu
+#   hardwareRef: um790-1
+#   hardwareMap:
+#     device_1: 58:47:ca:71:d8:49
+---
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Workflow
+metadata:
+  name: wf1-harvester
+  namespace: tink-system
+spec:
+  templateRef: harvester
+  hardwareRef: um790-1
+  hardwareMap:
+    device_1: 58:47:ca:71:d8:49

@@ -1,0 +1,99 @@
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Template
+metadata:
+  name: ubuntu
+  namespace: tink-system
+spec:
+  data: |
+    version: "0.1"
+    name: ubuntu
+    global_timeout: 1800
+    tasks:
+      - name: "os-installation"
+        worker: "{{.device_1}}"
+        volumes:
+          - /dev:/dev
+          - /dev/console:/dev/console
+          - /lib/firmware:/lib/firmware:ro
+        actions:
+          - name: "stream-ubuntu-image"
+            image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+            timeout: 600
+            environment:
+              DEST_DISK: /dev/nvme0n1
+              # Hegel IP
+              IMG_URL: "http://bootstrap.sienarfleet.systems/ubuntu/focal-server-cloudimg-amd64.raw.gz"
+              COMPRESSED: true
+          - name: "kexec ubuntu"
+            image: quay.io/tinkerbell-actions/kexec:v1.0.0
+            timeout: 90
+            pid: host
+            environment:
+                BLOCK_DEVICE: /dev/nvme0n1p1
+                FS_TYPE: ext4
+---
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Template
+metadata:
+  name: harvester
+  namespace: tink-system
+spec:
+  data: |
+    version: "0.1"
+    name: harvester
+    global_timeout: 1800
+    tasks:
+      - name: "os-installation"
+        worker: "{{.device_1}}"
+        volumes:
+          - /dev:/dev
+          - /dev/console:/dev/console
+          - /lib/firmware:/lib/firmware:ro
+        actions:
+          - name: "kexec harvester"
+            image: quay.io/tinkerbell-actions/kexec:v1.0.0
+            timeout: 90
+            pid: host
+            environment:
+                BLOCK_DEVICE: /dev/nvme0n1p4
+                FS_TYPE: ext4
+                KERNEL_PATH: /
+                INITRD_PATH: /boot/initrd
+                CMD_LINE: "root=/dev/nvme0n1p4 ro"
+---
+          # - name: "stream-harvester-image"
+          #   image: quay.io/tinkerbell-actions/image2disk:v1.0.0
+          #   timeout: 600
+          #   environment:
+          #     DEST_DISK: /dev/nvme0n1
+          #     # Hegel IP
+          #     IMG_URL: "http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-amd64.raw.gz"
+          #     COMPRESSED: true
+# apiVersion: "tinkerbell.org/v1alpha1"
+# kind: Template
+# metadata:
+#   name: harvester
+#   namespace: tink-system
+# spec:
+#   data: |
+#     version: "0.1"
+#     name: harvester
+#     global_timeout: 1800
+#     tasks:
+#       - name: "os-installation"
+#         worker: "{{.device_1}}"
+#         volumes:
+#           - /dev:/dev
+#           - /dev/console:/dev/console
+#           - /lib/firmware:/lib/firmware:ro
+#         actions:
+#           - name: "kexec harvester"
+#             image: quay.io/tinkerbell-actions/kexec:v1.0.0
+#             timeout: 90
+#             pid: host
+#             environment:
+#                 BLOCK_DEVICE: /dev/nvme0n1
+#                 FS_TYPE: ext4
+#                 KERNEL_PATH: http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-vmlinuz-amd64
+#                 INITRD_PATH: http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-initrd-amd64
+#                 CMD_LINE: ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 root=live:http://bootstrap.sienarfleet.systems/harvester/harvester-v1.2.0-rootfs-amd64.squashfs harvester.install.automatic=true harvester.install.config_url=http://bootstrap.sienarfleet.systems/harvester/config-create.yaml
