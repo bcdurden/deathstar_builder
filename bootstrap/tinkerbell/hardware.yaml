@@ -1,0 +1,38 @@
+apiVersion: "tinkerbell.org/v1alpha1"
+kind: Hardware
+metadata:
+  name: um790-1
+  namespace: tink-system
+spec:
+  disks:
+    - device: /dev/nvme0n1
+  metadata:
+    facility:
+      facility_code: onprem
+      plan_slug: c2.medium.x86
+    manufacturer:
+      slug: minisforum
+    instance:
+      operating_system:
+        distro: harvester
+        version: v1.2.0
+      userdata: 'initrd=harvester-v1.2.0-initrd-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 harvester.install.config_url=http://bootstrap.sienarfleet.systems/harvester/config-create.yaml'
+
+  interfaces:
+    - dhcp:
+        arch: x86_64
+        hostname: um790-1
+        ip:
+          address: 10.10.0.16
+          gateway: 10.10.0.1
+          netmask: 255.255.255.0
+        lease_time: 86400
+        mac: 58:47:ca:71:d8:49
+        name_servers:
+          - 10.10.0.1
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: false
+        osie:
+          baseURL: http://10.10.0.2/harvester
