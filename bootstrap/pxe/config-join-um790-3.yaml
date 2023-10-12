@@ -2,10 +2,10 @@ scheme_version: 1
 token: mysharedtoken # Replace with a desired token
 server_url: https://10.10.0.15:443
 os:
-  hostname: fulcrum1 # Set a hostname. 
+  hostname: fulcrum3 # Set a hostname. 
   ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZViyH636xpBFjteZDbEc3HrOIREuHcd6hjIq75G9zoisuq+ckjFeNZy0ucP4GohImoS8gtJeZalLQVDyxGr3aJ5W4mZHwzxtp+kqAfuBWQvE/An6xTlGVWBWFtHn2a24OTk33hGx88JBu+1FLqMlyud0jyZUuPbfbyP+DQpJB/39RTTd7+owJDRim7EBBG3suPsFuETM3KQ+c875OClcBoFor/zb9koPrqrtDpM1M16wVsVMQ05UfAVUN5iKvX2R0JYYlWBBaaiIldyI7EqTwYxdEJLWEbnd/9Thv5DdRctA9Bj/lzUg6BVgkxh9t7Ryoch9WFO62LSh61DJwnQRb
-  password: rfedftw420
+  password: password
   dns_nameservers:
   - 10.10.0.1
   labels:
@@ -16,7 +16,10 @@ install:
     interfaces:
       - name: enp2s0
     default_route: true
-    method: dhcp
+    method: static
+    ip: 10.10.0.18
+    subnet_mask: 255.255.255.0
+    gateway: 10.10.0.1
     # vlan_id:
     bond_options:
       mode: balance-tlb
