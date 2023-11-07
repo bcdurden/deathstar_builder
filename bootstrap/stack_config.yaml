@@ -1,0 +1,198 @@
+
+
+
+
+bootstrap:
+  ssh_key_file: /home/ubuntu/.ssh/mykey
+  base_url: sienarfleet.systems
+  harvester_iso_path: /home/ubuntu/data
+  order:
+  - _image
+  - _vendir
+  - _k3d
+  - _tink
+  - _hardware
+  - _pipeline_deps
+  - _infra_pipeline
+  addons:
+  - certs
+  - harbor
+  - gitea
+  - keycloak
+# - tekton_configuration
+# - rancher
+
+boots:
+  hardware:
+    deathstar0: 
+      macid: 58:47:ca:71:d6:d0
+    deathstar1: 
+      macid: 58:47:ca:71:8f:f1
+    deathstar2: 
+      macid: 58:47:ca:71:8f:12
+  secrets: []
+
+certs:
+  issuer: issuer-prod-clouddns.yaml
+  token_file_b64: 
+  secrets: []
+
+gitea:
+  secrets: []
+  gitea:
+    admin:
+      username: gitea
+    config:
+      server:
+        PROTOCOL: http
+  persistence:
+    size: 10Gi
+  postgresql:
+    persistence:
+      size: 1Gi
+
+  ingress:
+    enabled: true
+    hosts:
+    - host: git.sienarfleet.systems
+      paths: 
+      - path: "/"
+        pathType: "Prefix"
+    tls:
+    - secretName: gitea-prod-certificate
+      hosts:
+      - git.sienarfleet.systems
+
+harbor:
+  secrets: []
+  externalURL: https://harbor.sienarfleet.systems
+
+  harborAdminPassword: "Harbor12345"
+
+  updateStrategy:
+    type: Recreate
+
+  expose:
+    ingress:
+      hosts:
+        core: harbor.sienarfleet.systems
+        notary: notary.sienarfleet.systems
+    tls:
+      certSource: secret
+      secret:
+        secretName: harbor-prod-homelab-certificate
+        notarySecretName: harbor-prod-homelab-certificate
+
+  persistence:
+    persistentVolumeClaim:
+      registry:
+        size: 120Gi
+        storageClass: "harvester-longhorn"
+      chartmuseum:
+        storageClass: "harvester-longhorn"
+      jobservice:
+        storageClass: "harvester-longhorn"
+      database:
+        storageClass: "harvester-longhorn"
+      redis:
+        storageClass: "harvester-longhorn"
+      trivy:
+        storageClass: "harvester-longhorn"
+
+keycloak:
+  secrets: []
+  release: "16.1.2"
+  image:
+    debug: false
+    digest: ''
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    registry: docker.io
+    # repository: harbor.sienarfleet.systems/bitnami/keycloak
+    tag: 21.0.2-debian-11-r8
+  ingress:
+    hostname: keycloak.sienarfleet.systems
+    path: '{{ .Values.httpRelativePath }}'
+    pathType: ImplementationSpecific
+    selfSigned: false
+    servicePort: http
+  auth:
+    adminPassword: '$NotARealPassword1$'
+    adminUser: admin
+  cache:
+    enabled: true
+    stackFile: ''
+    stackName: kubernetes
+  clusterDomain: cluster.local
+  containerPorts:
+    http: 8080
+    https: 8443
+    infinispan: 7800
+  containerSecurityContext:
+    enabled: true
+    runAsNonRoot: true
+    runAsUser: 1001
+  enableServiceLinks: true
+  externalDatabase:
+    database: bitnami_keycloak
+    existingSecret: ''
+    existingSecretPasswordKey: ''
+    host: ''
+    password: ''
+    port: 5432
+    user: bn_keycloak
+  global:
+    imagePullSecrets: []
+    imageRegistry: ''
+    storageClass: ''
+  httpRelativePath:
+    tls: true
+  livenessProbe:
+    enabled: true
+    failureThreshold: 3
+    initialDelaySeconds: 300
+    periodSeconds: 1
+    successThreshold: 1
+    timeoutSeconds: 5
+  logging:
+    level: INFO
+    output: default
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+  postgresql:
+    architecture: standalone
+    auth:
+      database: bitnami_keycloak
+      existingSecret: ''
+      password: ''
+      postgresPassword: ''
+      username: bn_keycloak
+    enabled: true
+  proxy: passthrough
+  readinessProbe:
+    enabled: true
+    failureThreshold: 3
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+  replicaCount: 1
+  schedulerName: ''
+  service:
+    externalTrafficPolicy: Cluster
+    http:
+      enabled: true
+    ports:
+      http: 80
+      https: 443
+    sessionAffinity: None
+    type: ClusterIP
+  serviceAccount:
+    automountServiceAccountToken: true
+    create: true
+  spi:
+    truststoreFilename: keycloak-spi.truststore.jks
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate

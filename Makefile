@@ -176,7 +176,8 @@ _HARBOR_CERT=$(shell kubectl get secret -n harbor harbor-prod-homelab-certificat
 infra: check-tools
 	@printf "\n=====> Terraforming Infra\n";
 	@kubectx ${HARVESTER_CONTEXT}
-	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_harbor_url="$(REGISTRY_URL)" TF_VAR_harbor_cert_b64="$(_HARBOR_CERT)" TF_VAR_harbor_key_b64="$(_HARBOR_KEY)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_harbor_image_name=$(HARBOR_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
+	@$(MAKE) _terraform-init COMPONENT=infra VARS='TF_VAR_harbor_url="$(REGISTRY_URL)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
+	@$(MAKE) _terraform COMPONENT=infra VARS='TF_VAR_harbor_url="$(REGISTRY_URL)" TF_VAR_ubuntu_image_name=$(RKE2_IMAGE_NAME) TF_VAR_host_ip=$(AIRGAP_IMAGE_HOST_IP) TF_VAR_port=9900'
 	@kubectl create ns services || true
 	@kubectl create ns dev || true
 	@kubectl create ns prod || true

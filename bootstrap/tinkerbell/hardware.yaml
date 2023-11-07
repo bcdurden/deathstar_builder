@@ -16,7 +16,7 @@ spec:
       operating_system:
         distro: harvester
         version: v1.2.0
-      userdata: 'initrd=harvester-v1.2.0-initrd-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 harvester.install.config_url=http://bootstrap.sienarfleet.systems/harvester/config-create-um790-2.yaml'
+      userdata: 'initrd=harvester-v1.2.0-initrd-amd64 ip=dhcp net.ifnames=1 rd.cos.disable rd.noverifyssl console=tty1 harvester.install.config_url=http://bootstrap.sienarfleet.systems/harvester/config-create-um790-1.yaml'
 
   interfaces:
     - dhcp:
