@@ -4,13 +4,17 @@ SOURCE_REGISTRY=rgcrprod.azurecr.us
 SOURCE_REGISTRY_USER=$1
 SOURCE_REGISTRY_PASS=$2
 
+# Cert Manager Chart Version
+CERT_MANAGER_RELEASE=v1.10.2
+RANCHER_RELEASE="${3:-"2.7.5"}"
+BLACKLIST="${4:-"$PWD/bootstrap/airgap_images/blacklist"}"
+CARBIDE_RELEASE="${5:-"0.1.1"}"
+
 # Working directories & TAR
 DEST_DIRECTORY=/tmp/cert-manager-images
 DEST_TAR=/tmp/cert-manager-images.tar.gz  # Change this to the location you want for your resulting TAR 
 
-# Cert Manager Chart Version
-CERT_MANAGER_RELEASE=v1.10.2
-RANCHER_RELEASE="${3:-"2.7.5"}"
+echo "Pulling images for Rancher v$RANCHER_RELEASE"
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -74,7 +78,12 @@ fi
 cosign login -u $SOURCE_REGISTRY_USER -p $SOURCE_REGISTRY_PASS $SOURCE_REGISTRY
 mkdir -p "$DEST_DIRECTORY"
 
-RANCHER_IMAGES=$(curl --silent -L https://github.com/rancher/rancher/releases/download/v$RANCHER_RELEASE/rancher-images.txt)
+manifest=$(mktemp manifest.XXXXXXX)
+curl --silent -L https://github.com/rancher/rancher/releases/download/v$RANCHER_RELEASE/rancher-images.txt > $manifest
+for line in $(cat $BLACKLIST); do
+    grep -v $line $manifest > /tmp/file; mv /tmp/file $manifest # this is much faster
+done
+RANCHER_IMAGES=$(cat $manifest)
 for image in $RANCHER_IMAGES; do
     source_image="$SOURCE_REGISTRY/$image"
     dest_image="TARGET_REGISTRY/$image"
@@ -91,6 +100,7 @@ for image in $RANCHER_IMAGES; do
       cosign save --dir "$DEST_DIRECTORY/$img_id_num" $source_image
     fi
 done
+rm -rf $manifest
 
 # Compress directory
 tar zcf "$DEST_TAR" -C "$DEST_DIRECTORY" .
@@ -101,8 +111,6 @@ rm -rf $DEST_DIRECTORY
 # Working directories & TAR
 DEST_DIRECTORY=/tmp/carbide-rancher-images
 DEST_TAR=/tmp/carbide-rancher-images.tar.gz  # Change this to the location you want for your resulting TAR 
-
-CARBIDE_RELEASE="${4:-"0.1.1"}"
 
 if [[ -d "$DEST_DIRECTORY" ]]; then
     echo "ERROR: Directory '$DEST_DIRECTORY' exists."
@@ -124,7 +132,7 @@ helm repo add carbide-charts https://rancherfederal.github.io/carbide-charts
 helm repo update
 
 # Grab the list of images and download them (requires docker, grep, sed, and awk)
-for image in $(curl --silent -L https://github.com/rancherfederal/carbide-releases/releases/download/$CARBIDE_VERSION/carbide-images.txt); do
+for image in $(curl --silent -L https://github.com/rancherfederal/carbide-releases/releases/download/$CARBIDE_RELEASE/carbide-images.txt); do
     source_image=$(echo $image)
     dest_image=$(echo $image | sed "s/rgcrprod.azurecr.us/TARGET_REGISTRY/g")
     
@@ -141,7 +149,7 @@ for image in $(curl --silent -L https://github.com/rancherfederal/carbide-releas
     fi
 done
 
-source_image=rgcrprod.azurecr.us/carbide/carbide-whitelabel:0.1.0
+source_image=rgcrprod.azurecr.us/carbide/carbide-whitelabel:0.1.1
 dest_image=$(echo $source_image | sed "s/rgcrprod.azurecr.us/TARGET_REGISTRY/g")
 
 img_dir=$(mktemp -d $DEST_DIRECTORY/carbide-image.XXXXXXX)

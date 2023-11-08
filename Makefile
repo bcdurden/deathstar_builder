@@ -19,7 +19,7 @@ GITEA_URL := git.$(BASE_URL)
 GIT_ADMIN_PASSWORD="C4rb1De_S3cr4t"
 CLOUDFLARE_TOKEN=""
 CERT_MANAGER_VERSION=1.10.2
-RANCHER_VERSION=2.7.5
+RANCHER_VERSION=2.7.8
 CLOUD_TOKEN_FILE=/Volumes/BIGBOY/keys/cloud_dns_account_key.json
 BITNAMI_KEYCLOAK_RELEASE=16.1.2
 
@@ -117,7 +117,7 @@ keycloak: check-tools
 # airgap targets
 pull-rancher: check-tools
 	@printf "\n===>Pulling Rancher Images\n";
-	@${BOOTSTRAP_DIR}/airgap_images/pull_carbide_rancher $(CARBIDE_USER) '$(CARBIDE_PASSWORD)'
+	@${BOOTSTRAP_DIR}/airgap_images/pull_carbide_rancher $(CARBIDE_USER) '$(CARBIDE_PASSWORD)' '$(RANCHER_VERSION)' '${BOOTSTRAP_DIR}/airgap_images/blacklist'
 	@printf "\nIf successful, your images will be available at /tmp/rancher-images.tar.gz and /tmp/cert-manager.tar.gz"
 pull-misc: check-tools
 	@printf "\n===>Pulling Misc Images\n";
