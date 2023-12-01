@@ -6,3 +6,4 @@ harbor.key
 jumpbox.key
 *.tfvars
 *.tar
+*.yaml
